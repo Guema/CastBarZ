@@ -1,0 +1,15 @@
+{
+    "addon_name": "gCastBars",
+    "wow_path" : "D:/World of Warcraft/",
+    "to_include" : [
+        "./**/*.xml",
+        "./**/*.lua",
+        "./**/*.toc",
+        "LICENSE",
+        "README.md",
+        "./Libs/**"
+    ],
+    "to_exclude" : [
+        "./Core.lua"
+    ]
+}
