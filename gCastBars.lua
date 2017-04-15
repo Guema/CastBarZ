@@ -7,9 +7,9 @@
 -- Initialize addon with the scope parameters provided by Blizzard
 local AddonName, AddonTable = ...
 -- Search the addon name in global(_G) scope. If not initilialized, do it.
-_G[AddonName] = _G[AddonName] or LibStub('AceAddon-3.0'):NewAddon(AddonName)
+_G[AddonName] = _G[AddonName] or LibStub("AceAddon-3.0"):NewAddon(AddonName)
 local Addon = _G[AddonName]
-local LSM = LibStub('LibSharedMedia-3.0')
+local LSM = LibStub("LibSharedMedia-3.0")
 
 --[[ global refs ]]--
 -- declaring local references probably allow faster memory access for addons 
@@ -25,9 +25,12 @@ local pairs = _G.pairs
 local AceGUI = LibStub("AceGUI-3.0")
 ---------------------
 
+LSM:Register("statusbar", "Solid", "Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+
 function Addon:OnInitialize()
     --_G.CastingBarFrame.ignoreFramePositionManager = true
     _G.CastingBarFrame:UnregisterAllEvents()
+    
 end
 
 function Addon:OnEnable()
