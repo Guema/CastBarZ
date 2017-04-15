@@ -1,0 +1,8 @@
+## Title: |c007700FFG|r|c008E00FFu|r|c00A600FFe|r|c00BD00FFm|r|c00D500FFU|r|c00ED00FFI|r - CastBars
+## Notes: A modulable casting bars system (ToDo : Better description)
+## Interface: 72000
+## Version: pre-alpha
+## Author: Guema
+
+embeds.xml
+gCastBars.lua
