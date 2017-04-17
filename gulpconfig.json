@@ -1,6 +1,6 @@
 {
     "addon_name": "gCastBars",
-    "wow_path" : "D:/World of Warcraft/",
+    "wow_addons_path": "D:/World of Warcraft/Interface/AddOns/",
     "to_include" : [
         "**"
     ],

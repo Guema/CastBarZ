@@ -1,29 +1,52 @@
 // Requiring node packages :
 var gulp = require('gulp');
 var del = require('del');
+var combine = require('stream-combiner');
+// Require config file :
 var config = require("./gulpconfig.json");
+
+function to_build() {
+    return config.to_include
+        .concat(config.to_exclude.map(function(element) { return "!" + element}))
+        .concat(["!build", "!build/**"]);
+}
+
+function to_watch() {
+    return config.to_include
+        .concat(["!gulpfile.js", "!build/", "!build/**"]);
+}
+
+function target() {
+    var tar = ["./build/" + config.addon_name];
+    if(config.wow_addons_path != null)
+    {
+        tar.push(config.wow_addons_path + "/" + config.addon_name);
+    }
+    return tar;
+}
+
+function dests() {
+    return combine(target().map(function(element) {
+        return gulp.dest(element);
+    }));
+}
 
 gulp.task('default', ['build', 'watch']);
 
 gulp.task('build', ['clean', 'reload'], function() {
-   var paths = config.to_include.slice();
-   config.to_exclude.forEach(function(element) {
-      paths.push('!' + element);
-   }, this);
-   return gulp.src(paths, { base: '.' }).pipe(gulp.dest(config.wow_path + '/Interface/Addons/' + config.addon_name));
+    return gulp.src(to_build(), { base: '.' }).pipe(dests());
 });
 
 gulp.task('clean', function() {
-   return del(config.wow_path + '/Interface/Addons/' + config.addon_name + "/*", {force: true});
+    return del( target(), {force: true});
 });
 
 gulp.task('watch', function() {
-   var paths = config.to_include.concat("./gulpconfig.json");
-   var watcher = gulp.watch(paths, ['clean', 'build']);
-   watcher.on('change', function(event) {
-      console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
-   });  
-   return watcher;
+    var watcher = gulp.watch(to_watch(), ['clean', 'build']);
+    watcher.on('change', function(event) {
+        console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+    });
+    return watcher;
 });
 
 gulp.task('reload', function() {
