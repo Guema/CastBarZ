@@ -34,20 +34,8 @@ function Addon:OnInitialize()
 end
 
 function Addon:OnEnable()
-    self.CastBarFrame = CreateFrame("Frame", nil, UIParent)
-    local CastBarFrame = self.CastBarFrame
-    CastBarFrame:SetFrameStrata("BACKGROUND")
-    CastBarFrame:SetSize(230, 24)
-
-    CastBarFrame.texture = CastBarFrame:CreateTexture(nil, "BACKGROUND")
-    local t = CastBarFrame.texture
-    
-    t:SetAllPoints(CastBarFrame)
-    t:SetTexture("Interface\\TargetingFrame\\UI-StatusBar.blp")
-    t:SetVertexColor(1.0, 1.0, 1.0, 1.0)
-
-    CastBarFrame:SetPoint("BOTTOM",0,185)
-    CastBarFrame:Show()
+    self.CastBarFrame = self:CreateCastbarFrame()
+    local f = self.CastBarFrame
 end
 
 function DumpTable(tb)
@@ -56,6 +44,47 @@ function DumpTable(tb)
     end
 end
 
+function Addon:CreateCastbarFrame()
+    local f = CreateFrame("Frame", nil, UIParent)
+    f:SetFrameStrata("BACKGROUND")
+    f:SetSize(230, 24)
+
+    f.t = f:CreateTexture(nil, "BACKGROUND")
+    local t = f.t
+    
+    t:SetAllPoints(f)
+    t:SetTexture("Interface\\TargetingFrame\\UI-StatusBar.blp")
+    t:SetVertexColor(1.0, 1.0, 1.0, 1.0)
+
+    f:SetScript("OnEvent", function(self, event, ...)
+        if event == "UNIT_SPELLCAST_START" then
+            self:Show()
+        elseif event == "UNIT_SPELLCAST_STOP" or "UNIT_SPELLCAST_FAILED" then
+            self:Hide()
+        end 
+    end)
+
+    f:SetPoint("BOTTOM",0,185)
+    f:Hide()
+
+    self:ConnectEventsOfUnit(f, "player")
+        
+    return f
+end
+
+function Addon:ConnectEventsOfUnit(Frame, Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_START', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_UPDATE', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_STOP', Unit)
+
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_START', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_STOP', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED_QUIET', Unit)
+
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_INTERRUPTED', Unit)
+    Frame:RegisterUnitEvent('UNIT_SPELLCAST_DELAYED', Unit)
+end
 
 
 --function Addon: On
