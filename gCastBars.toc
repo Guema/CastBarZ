@@ -5,4 +5,5 @@
 ## Author: Guema
 
 embeds.xml
+GuemUICastingBarFrame.lua
 gCastBars.lua

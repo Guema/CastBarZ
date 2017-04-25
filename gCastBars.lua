@@ -1,18 +1,13 @@
---[[
-    gCastBars.lua
-        This file is published in the public domain.
-]]--
 
-
--- Initialize addon with the scope parameters provided by Blizzard
 local AddonName, AddonTable = ...
--- Search the addon name in global(_G) scope. If not initilialized, do it.
-_G[AddonName] = _G[AddonName] or LibStub("AceAddon-3.0"):NewAddon(AddonName)
-local Addon = _G[AddonName]
 local LSM = LibStub("LibSharedMedia-3.0")
 
+_G[AddonName] = _G[AddonName] or LibStub("AceAddon-3.0"):NewAddon(AddonName)
+local Addon = _G[AddonName]
+
+
 --[[ global refs ]]--
--- declaring local references probably allow faster memory access for addons 
+
 local _G = _G
 local GetSpellInfo = _G.GetSpellInfo
 local GetTime = _G.GetTime
@@ -23,68 +18,35 @@ local IsHarmfulSpell = _G.IsHarmfulSpell
 local IsHelpfulSpell = _G.IsHelpfulSpell
 local pairs = _G.pairs
 local AceGUI = LibStub("AceGUI-3.0")
----------------------
-
-LSM:Register("statusbar", "Solid", "Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
 
 function Addon:OnInitialize()
     --_G.CastingBarFrame.ignoreFramePositionManager = true
     _G.CastingBarFrame:UnregisterAllEvents()
-    
-end
+    LSM:Register("statusbar", "Solid", "Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
 
-function Addon:OnEnable()
-    self.CastBarFrame = self:CreateCastbarFrame()
-    local f = self.CastBarFrame
-end
+    self.castbars = {}
+    function self.castbarsAddCastBar(frame)
 
-function DumpTable(tb)
-    for k, v in pairs(tb) do
-        print(k, v)
     end
 end
 
-function Addon:CreateCastbarFrame()
-    local f = CreateFrame("Frame", nil, UIParent)
-    f:SetFrameStrata("BACKGROUND")
-    f:SetSize(230, 24)
+function Addon:OnEnable()
+    self.CastingBarFrame = self:CreateClass("StatusBar")
+    local f = self.CastingBarFrame
+    f:SetSize(220, 24)
+    f:SetPoint("BOTTOM", 0, 170)
 
-    f.t = f:CreateTexture(nil, "BACKGROUND")
-    local t = f.t
-    
-    t:SetAllPoints(f)
-    t:SetTexture("Interface\\TargetingFrame\\UI-StatusBar.blp")
-    t:SetVertexColor(1.0, 1.0, 1.0, 1.0)
-
-    f:SetScript("OnEvent", function(self, event, ...)
-        if event == "UNIT_SPELLCAST_START" then
-            self:Show()
-        elseif event == "UNIT_SPELLCAST_STOP" or "UNIT_SPELLCAST_FAILED" then
-            self:Hide()
-        end 
+    f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player", function(_, event, _, name, _)
+        print("Casting ".. name .. "...")
     end)
 
-    f:SetPoint("BOTTOM",0,185)
-    f:Hide()
+    f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function()
+        print("Succes !")
+    end)
 
-    self:ConnectEventsOfUnit(f, "player")
-        
-    return f
+    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player", function()
+        print("Stopped.")
+    end)
+
+    f:UnregisterEvent("UNIT_SPELLCAST_STOP")
 end
-
-function Addon:ConnectEventsOfUnit(Frame, Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_START', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_UPDATE', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_STOP', Unit)
-
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_START', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_STOP', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED_QUIET', Unit)
-
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_INTERRUPTED', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_DELAYED', Unit)
-end
-
-
---function Addon: On
