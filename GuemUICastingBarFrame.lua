@@ -47,16 +47,55 @@ function Addon:CreateClass(Class, Name, Parent)
     return obj
 end
 
-function Addon:ConnectEventsOfUnit(Frame, Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_START', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_UPDATE', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_CHANNEL_STOP', Unit)
+function Addon:CreateCastingBarFrame(Unit)
+    local f = self:CreateClass("StatusBar")
 
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_START', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_STOP', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_FAILED_QUIET', Unit)
+    f:Hide()
+    f:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+    f:SetStatusBarColor(0, 0.7, 1.0)
+    f:SetSize(220, 24)
+    f:SetPoint("BOTTOM", 0, 170)
+    f:SetFillStyle("STANDARD")
+    f:SetMinMaxValues(0.0, 1.0)
 
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_INTERRUPTED', Unit)
-    Frame:RegisterUnitEvent('UNIT_SPELLCAST_DELAYED', Unit)
+    local t = f:CreateTexture()
+    t:SetColorTexture(0, 0, 0)
+    t:SetAllPoints(f)
+
+    f.fadein = f:CreateAnimationGroup()
+    f.fadein:SetLooping("NONE")
+    local alpha = f.fadein:CreateAnimation("Alpha")
+    alpha:SetDuration(0.2)
+    alpha:SetFromAlpha(0.0)
+    alpha:SetToAlpha(1.0)
+
+    f.fadeout = f:CreateAnimationGroup()
+    f.fadeout:SetLooping("NONE")
+    local alpha = f.fadeout:CreateAnimation("Alpha")
+    alpha:SetDuration(0.5)
+    alpha:SetFromAlpha(1.0)
+    alpha:SetToAlpha(0.0)
+
+    f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player", function(self, event, unit, name, ...)
+        self:Show()
+        self.fadeout:Stop()
+        self.fadein:Play()
+    end)
+
+    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player", function(self, event, unit, name, ...)
+        self.fadeout:Play()
+    end)
+
+    f.fadeout:SetScript("OnFinished", function(self, ...)
+        f:Hide()
+    end)
+
+    f:SetScript('OnUpdate', function(self, rate)
+        local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
+        if startTime and endTime then
+            f:SetValue((GetTime()*1000 - startTime) / (endTime-startTime))
+        end
+    end)
+
+    return f
 end

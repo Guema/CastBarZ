@@ -26,30 +26,5 @@ function Addon:OnInitialize()
 end
 
 function Addon:OnEnable()
-    self.CastingBarFrame = self:CreateClass("StatusBar")
-    local f = self.CastingBarFrame
-    f:Hide()
-    f:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
-    f:SetSize(220, 24)
-    f:SetPoint("BOTTOM", 0, 170)
-    f:SetFillStyle("STANDARD")
-    f:SetMinMaxValues(0.0, 1.0)
-    f.t = f:CreateTexture(nil)
-    f.t:SetColorTexture(0, 0, 0)
-    f.t:SetAllPoints(f)
-    
-    f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player", function(self, event, unit, name, ...)
-        self:Show()
-    end)
-
-    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player", function(self, event, unit, name, ...)
-        self:Hide()
-    end)
-
-    f:SetScript('OnUpdate', function(self, rate)
-        local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
-        if startTime and endTime then
-            f:SetValue((GetTime()*1000 - startTime) / (endTime-startTime))
-        end
-    end)
+    self.CastingBar = self:CreateCastingBarFrame("player")
 end
