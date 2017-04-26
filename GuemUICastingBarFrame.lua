@@ -48,19 +48,22 @@ function Addon:CreateClass(Class, Name, Parent)
 end
 
 function Addon:CreateCastingBarFrame(Unit)
-    local f = self:CreateClass("StatusBar")
-
+    assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
+    local f = self:CreateClass("Frame", AddonName..Unit)
+    local s = self:CreateClass("StatusBar", nil, f)
+    
     f:Hide()
-    f:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
-    f:SetStatusBarColor(0, 0.7, 1.0)
     f:SetSize(220, 24)
     f:SetPoint("BOTTOM", 0, 170)
-    f:SetFillStyle("STANDARD")
-    f:SetMinMaxValues(0.0, 1.0)
-
     local t = f:CreateTexture()
     t:SetColorTexture(0, 0, 0)
     t:SetAllPoints(f)
+    
+    s:SetAllPoints(f)
+    s:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+    s:SetStatusBarColor(0, 0.7, 1.0)
+    s:SetFillStyle("STANDARD")
+    s:SetMinMaxValues(0.0, 1.0)
 
     f.fadein = f:CreateAnimationGroup()
     f.fadein:SetLooping("NONE")
@@ -93,7 +96,7 @@ function Addon:CreateCastingBarFrame(Unit)
     f:SetScript('OnUpdate', function(self, rate)
         local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
         if startTime and endTime then
-            f:SetValue((GetTime()*1000 - startTime) / (endTime-startTime))
+            s:SetValue((GetTime()*1000 - startTime) / (endTime-startTime))
         end
     end)
 
