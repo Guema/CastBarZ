@@ -89,6 +89,11 @@ function Addon:CreateCastingBarFrame(Unit)
         self.fadeout:Play()
     end)
 
+    f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function(...)
+        local _, val = s:GetMinMaxValues()
+        s:SetValue(val)
+    end)
+
     f.fadeout:SetScript("OnFinished", function(self, ...)
         f:Hide()
     end)
