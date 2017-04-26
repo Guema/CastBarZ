@@ -42,7 +42,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('watch', function() {
-    var watcher = gulp.watch(to_watch(), ['clean', 'build']);
+    var watcher = gulp.watch(to_watch(), {interval : 1000}, ['clean', 'build']);
     watcher.on('change', function(event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
     });
