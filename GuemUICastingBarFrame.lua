@@ -9,6 +9,13 @@ local assert = assert
 local type = type
 local getmetatable = getmetatable
 local CreateFrame = CreateFrame
+local GetSpellInfo = GetSpellInfo
+local GetTime = GetTime
+local GetNetStats = GetNetStats
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
+local IsHarmfulSpell = IsHarmfulSpell
+local IsHelpfulSpell = IsHelpfulSpell
 local UIParent = UIParent
 
 function Addon:CreateClass(Class, Name, Parent)
@@ -47,10 +54,12 @@ function Addon:CreateClass(Class, Name, Parent)
     return obj
 end
 
-function Addon:CreateCastingBarFrame(Unit)
+function Addon:CreateCastingBarFrame(Unit, Parent)
     assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
-    local f = self:CreateClass("Frame", AddonName..Unit)
+    Parent = Parent or UIParent
+    local f = self:CreateClass("Frame", AddonName..Unit, Parent)
     local s = self:CreateClass("StatusBar", nil, f)
+    --local spark = s:CreateTexture(spark)
     
     f:Hide()
     f:SetSize(220, 24)
@@ -78,30 +87,40 @@ function Addon:CreateCastingBarFrame(Unit)
     alpha:SetDuration(0.5)
     alpha:SetFromAlpha(1.0)
     alpha:SetToAlpha(0.0)
+    
+    f.fadeout:SetScript("OnFinished", function(self, ...)
+        f:Hide()
+    end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_START", "player", function(self, event, unit, name, ...)
+    local c = {}
+
+    f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
+        c.name, _, c.text, c.texture, c.startTime, c.endTime, _, c.castID, c.notInterruptible = UnitCastingInfo(unit)
         self:Show()
         self.fadeout:Stop()
         self.fadein:Play()
     end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", "player", function(self, event, unit, name, ...)
+    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
         self.fadeout:Play()
     end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", "player", function(...)
-        local _, val = s:GetMinMaxValues()
+    f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
+        local val = s:GetMinMaxValues()
+        c = {}
         s:SetValue(val)
     end)
 
-    f.fadeout:SetScript("OnFinished", function(self, ...)
-        f:Hide()
+    f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Unit, function(self, event, unit, name, rank, castid, spellid)
+        if(castid == c.castid) then
+            local _, val = s:GetMinMaxValues()
+            s:SetValue(val)
+        end
     end)
 
     f:SetScript('OnUpdate', function(self, rate)
-        local _, _, _, _, startTime, endTime = UnitCastingInfo("player")
-        if startTime and endTime then
-            s:SetValue((GetTime()*1000 - startTime) / (endTime-startTime))
+        if c.startTime and c.endTime then
+            s:SetValue((GetTime()*1000 - c.startTime) / (c.endTime-c.startTime))
         end
     end)
 
