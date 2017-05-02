@@ -59,6 +59,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     Parent = Parent or UIParent
     local f = self:CreateClass("Frame", AddonName..Unit, Parent)
     local s = self:CreateClass("StatusBar", nil, f)
+    local nameText = CreateFrame("Frame", nil, f)
     --local spark = s:CreateTexture(spark)
     
     f:Hide()
@@ -73,6 +74,12 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     s:SetStatusBarColor(0, 0.7, 1.0)
     s:SetFillStyle("STANDARD")
     s:SetMinMaxValues(0.0, 1.0)
+
+    nameText:SetAllPoints(f)
+    local text = nameText:CreateFontString()
+    text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
+    text:SetAllPoints(f)
+    text:SetTextColor( 1, 1, 1)
 
     f.fadein = f:CreateAnimationGroup()
     f.fadein:SetLooping("NONE")
@@ -96,6 +103,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
         c.name, _, c.text, c.texture, c.startTime, c.endTime, _, c.castID, c.notInterruptible = UnitCastingInfo(unit)
+        text:SetText(c.name)
         self:Show()
         self.fadeout:Stop()
         self.fadein:Play()
