@@ -59,28 +59,37 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     Parent = Parent or UIParent
     local f = self:CreateClass("Frame", AddonName..Unit, Parent)
     local s = self:CreateClass("StatusBar", nil, f)
+    local sparkle = self:CreateClass("Frame", nil, f)
     local nameText = CreateFrame("Frame", nil, f)
-    --local spark = s:CreateTexture(spark)
-    
+
     f:Hide()
     f:SetSize(220, 24)
     f:SetPoint("BOTTOM", 0, 170)
-    local t = f:CreateTexture()
+    local t = f:CreateTexture("Texture")
     t:SetColorTexture(0, 0, 0)
     t:SetAllPoints(f)
     
     s:SetAllPoints(f)
     s:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
-    s:SetStatusBarColor(0, 0.7, 1.0)
+    s:SetStatusBarColor(0, 0.5, 8.0)
     s:SetFillStyle("STANDARD")
     s:SetMinMaxValues(0.0, 1.0)
+    s:SetValue(0.5)
 
+    sparkle:SetPoint("CENTER", s:GetStatusBarTexture(), "RIGHT")
+    sparkle:SetSize(10, 2 * f:GetHeight())
+    local t = sparkle:CreateTexture()
+    t:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+    t:SetVertexColor(s:GetStatusBarColor())
+    t:SetBlendMode("ADD")
+    t:SetAllPoints(sparkle)
+    
     nameText:SetAllPoints(f)
     local text = nameText:CreateFontString()
     text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
     text:SetAllPoints(f)
     text:SetTextColor( 1, 1, 1)
-
+    
     f.fadein = f:CreateAnimationGroup()
     f.fadein:SetLooping("NONE")
     local alpha = f.fadein:CreateAnimation("Alpha")
@@ -115,6 +124,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
         local val = s:GetMinMaxValues()
+        text:SetText("Interrupted")
         c = {}
         s:SetValue(val)
     end)
