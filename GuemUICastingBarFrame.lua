@@ -17,6 +17,7 @@ local UnitChannelInfo = UnitChannelInfo
 local IsHarmfulSpell = IsHarmfulSpell
 local IsHelpfulSpell = IsHelpfulSpell
 local UIParent = UIParent
+local INTERRUPTED = INTERRUPTED
 
 function Addon:CreateClass(Class, Name, Parent)
     Name = Name or nil
@@ -59,8 +60,9 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     Parent = Parent or UIParent
     local f = self:CreateClass("Frame", AddonName..Unit, Parent)
     local s = self:CreateClass("StatusBar", nil, f)
-    local sparkle = self:CreateClass("Frame", nil, f)
+    local sparkle = CreateFrame("Frame", nil, s)
     local nameText = CreateFrame("Frame", nil, f)
+    local timerText = CreateFrame("Frame", nil, f)
 
     f:Hide()
     f:SetSize(220, 24)
@@ -74,7 +76,14 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     s:SetStatusBarColor(0, 0.5, 8.0)
     s:SetFillStyle("STANDARD")
     s:SetMinMaxValues(0.0, 1.0)
-    s:SetValue(0.5)
+    s:SetScript("OnValueChanged", function(self, val)
+        if(val <= 0.0 or val >= 1.0) then
+            sparkle:Hide()
+        else
+            sparkle:Show()
+        end
+    end)
+
 
     sparkle:SetPoint("TOPLEFT", s:GetStatusBarTexture(), "TOPRIGHT", -7, 15)
     sparkle:SetPoint("BOTTOMRIGHT", s:GetStatusBarTexture(), "BOTTOMRIGHT", 7, -15)
@@ -86,10 +95,18 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     
     nameText:SetAllPoints(f)
     local text = nameText:CreateFontString()
-    text:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
+    text:SetFont("Fonts\\2002.TTF", 10, "OUTLINE")
     text:SetAllPoints(f)
     text:SetTextColor( 1, 1, 1)
-    
+
+    timerText:SetPoint("TOPRIGHT", f, "TOPRIGHT")
+    timerText:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
+    timerText:SetWidth(60)
+    local ttext = timerText:CreateFontString()
+    ttext:SetFont("Fonts\\2002.TTF", 8, "OUTLINE")
+    ttext:SetJustifyH("RIGHT")
+    ttext:SetAllPoints(timerText)
+
     f.fadein = f:CreateAnimationGroup()
     f.fadein:SetLooping("NONE")
     local alpha = f.fadein:CreateAnimation("Alpha")
@@ -108,37 +125,40 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
         f:Hide()
     end)
 
-    local c = {}
+    local ccname, cctext, cctexture, ccstime, ccetime, cccastID
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
-        c.name, _, c.text, c.texture, c.startTime, c.endTime, _, c.castID, c.notInterruptible = UnitCastingInfo(unit)
-        text:SetText(c.name)
+        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
+        text:SetFormattedText("%s", cctext)
         self:Show()
         self.fadeout:Stop()
         self.fadein:Play()
     end)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
+        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
         self.fadeout:Play()
     end)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
         local val = s:GetMinMaxValues()
-        text:SetText("Interrupted")
-        c = {}
+        text:SetText(INTERRUPTED)
         s:SetValue(val)
     end)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Unit, function(self, event, unit, name, rank, castid, spellid)
-        if(castid == c.castid) then
+        if(castid == cccastID) then
             local _, val = s:GetMinMaxValues()
             s:SetValue(val)
         end
     end)
 
     f:SetScript('OnUpdate', function(self, rate)
-        if c.startTime and c.endTime then
-            s:SetValue((GetTime()*1000 - c.startTime) / (c.endTime-c.startTime))
+        if ccstime and ccetime then
+            local t = GetTime() * 1000
+            s:SetValue((t - ccstime) / (ccetime-ccstime))
+            --ttext:SetFormattedText("%.1f / %.1f", (t - ccstime)/1000, (ccetime-ccstime)/1000)
+            ttext:SetFormattedText("%.1f", (ccetime - t)/1000)
         end
     end)
 
