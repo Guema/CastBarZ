@@ -63,7 +63,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     local sparkle = CreateFrame("Frame", nil, s)
     local nameText = CreateFrame("Frame", nil, f)
     local timerText = CreateFrame("Frame", nil, f)
-    local latencyoverlay = CreateFrame("Frame", "Latencyoverlay", f)
+    local latencyoverlay = CreateFrame("Frame", nil, f)
 
     f:Hide()
     f:SetSize(220, 24)
