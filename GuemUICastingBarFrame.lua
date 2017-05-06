@@ -63,6 +63,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     local sparkle = CreateFrame("Frame", nil, s)
     local nameText = CreateFrame("Frame", nil, f)
     local timerText = CreateFrame("Frame", nil, f)
+    local latencyoverlay = CreateFrame("Frame", "Latencyoverlay", f)
 
     f:Hide()
     f:SetSize(220, 24)
@@ -74,7 +75,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     s:SetAllPoints(f)
     s:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
     s:SetStatusBarColor(0, 0.5, 8.0)
-    s:SetFillStyle("STANDARD")
+    s:SetFillStyle("STANDARD_NO_RANGE_FILL")
     s:SetMinMaxValues(0.0, 1.0)
     s:SetScript("OnValueChanged", function(self, val)
         if(val <= 0.0 or val >= 1.0) then
@@ -83,7 +84,6 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
             sparkle:Show()
         end
     end)
-
 
     sparkle:SetPoint("TOPLEFT", s:GetStatusBarTexture(), "TOPRIGHT", -7, 15)
     sparkle:SetPoint("BOTTOMRIGHT", s:GetStatusBarTexture(), "BOTTOMRIGHT", 7, -15)
@@ -99,13 +99,19 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     text:SetAllPoints(f)
     text:SetTextColor( 1, 1, 1)
 
-    timerText:SetPoint("TOPRIGHT", f, "TOPRIGHT")
-    timerText:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
+    timerText:SetPoint("TOPLEFT", f, "TOPRIGHT", -60, 0)
+    timerText:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -2, 0)
     timerText:SetWidth(60)
     local ttext = timerText:CreateFontString()
     ttext:SetFont("Fonts\\2002.TTF", 8, "OUTLINE")
     ttext:SetJustifyH("RIGHT")
     ttext:SetAllPoints(timerText)
+
+    latencyoverlay:SetPoint("TOPRIGHT", f, "TOPRIGHT")
+    latencyoverlay:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
+    local t = latencyoverlay:CreateTexture()
+    t:SetColorTexture(0.8, 0.6, 0.0, 0.3)
+    t:SetAllPoints(latencyoverlay)
 
     f.fadein = f:CreateAnimationGroup()
     f.fadein:SetLooping("NONE")
@@ -126,23 +132,43 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     end)
 
     local ccname, cctext, cctexture, ccstime, ccetime, cccastID
+    local wlatency
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
-        text:SetFormattedText("%s", cctext)
+        _, _, _, wlatency = GetNetStats()
+        latencyoverlay:SetWidth(wlatency * 1000 / (ccetime-ccstime))
+        text:SetFormattedText("%s", string.sub( cctext, 1, 40 ))
         self:Show()
         self.fadeout:Stop()
         self.fadein:Play()
     end)
+
+    f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", Unit, function(self, event, unit, ...)
+        ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
+        _, _, _, wlatency = GetNetStats()
+        latencyoverlay:SetWidth(0)
+        text:SetFormattedText("%s", string.sub( ccname, 1, 40 ))
+        self:Show()
+        self.fadeout:Stop()
+        self.fadein:Play()
+    end)
+
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
         self.fadeout:Play()
     end)
 
+    f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
+        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitChannelInfo(unit)
+        self.fadeout:Play()
+    end)
+
     f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
         local val = s:GetMinMaxValues()
         text:SetText(INTERRUPTED)
+        ttext:SetText("")
         s:SetValue(val)
     end)
 
