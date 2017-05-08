@@ -17,6 +17,8 @@ local IsHelpfulSpell = IsHelpfulSpell
 local UIParent = UIParent
 local INTERRUPTED = INTERRUPTED
 
+local LATENCY_TOLERENCE = 100
+
 function Addon:CreateClass(Class, Name, Parent)
     Name = Name or nil
     Parent = Parent or UIParent
@@ -129,11 +131,11 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     end)
 
     local ccname, cctext, cctexture, ccstime, ccetime, cccastID
-    local sentTime
+    local _, LatencySparkle = l:GetSparkleTexture()
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
-        l:SetValue(100 / (ccetime - ccstime))
+        l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
         text:SetFormattedText("%s", string.sub( cctext, 1, 40 ))
         self:Show()
         self.fadeout:Stop()
@@ -178,8 +180,8 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
         if ccstime and ccetime then
             local t = GetTime() * 1000
             s:SetValue((t - ccstime) / (ccetime-ccstime))
-            --ttext:SetFormattedText("%.1f / %.1f", (t - ccstime)/1000, (ccetime-ccstime)/1000)
-            ttext:SetFormattedText("%.1f", (ccetime - t)/1000)
+            ttext:SetFormattedText("%.1f", (t - ccstime)/1000, (ccetime-ccstime)/1000)
+            --ttext:SetFormattedText("%.1f", (ccetime - t)/1000)
         end
     end)
 

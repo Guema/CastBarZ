@@ -12,8 +12,9 @@ function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
     local nmin, nmax = obj:GetMinMaxValues()
     local showR, showL = true, false
     local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
+
     sparkleR:SetBlendMode("ADD")
-    sparkleL:SetBlendMode("ADD")
+    sparkleL:SetBlendMode("ADD") 
 
     function obj:SetSparkleTexture(texture)
         sparkleR:SetTexture(texture)
