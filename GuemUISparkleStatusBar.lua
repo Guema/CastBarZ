@@ -3,7 +3,7 @@ local Addon = _G[AddonName]
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
-local WIDTH_FACTOR = 0.33
+local WIDTH_FACTOR = 1/2
 local HEIGHT_FACTOR = 2
 
 function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
@@ -55,6 +55,7 @@ function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
     obj:SetScript("OnSizeChanged", function(self, w, h)
         sparkleR:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
         sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
+        print(sparkleR:GetHeight(), sparkleL:GetHeight())
     end)
 
     obj:SetScript("OnValueChanged", function(self, val)
