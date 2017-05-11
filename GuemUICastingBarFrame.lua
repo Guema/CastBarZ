@@ -19,8 +19,7 @@ local INTERRUPTED = INTERRUPTED
 
 local LATENCY_TOLERENCE = 100
 
-function Addon:CreateClass(Class, Name, Parent)
-    Name = Name or nil
+function Addon.CreateClass(Class, Name, Parent)
     Parent = Parent or UIParent
 
     local obj = CreateFrame(Class, Name, Parent)
@@ -64,29 +63,30 @@ end
 function Addon:CreateCastingBarFrame(Unit, Parent)
     assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
     Parent = Parent or UIParent
-    local f = self:CreateClass("Frame", AddonName..Unit, Parent)
-    local s = self.CreateSparkleStatusBar(nil, f)
-    local l = self.CreateSparkleStatusBar(nil, f)
-    local nameText = CreateFrame("Frame", nil, f)
-    local timerText = CreateFrame("Frame", nil, f)
+
+    local f = self.CreateSparkleStatusBar(AddonName..Unit, Parent)
+    local l = CreateFrame("StatusBar", "LatencyOverlay", f)
+    local nameText = CreateFrame("Frame", "NameText", f)
+    local timerText = CreateFrame("Frame", "TimerText", f)
+
 
     f:Hide()
     f:SetSize(220, 24)
     f:SetPoint("BOTTOM", 0, 170)
-    local t = f:CreateTexture()
+    local t = f:CreateTexture("TransparentBG", "BACKGROUND")
     t:SetColorTexture(0, 0, 0, 0.4)
     t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)
     t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 2, -2)
-    local t = f:CreateTexture()
+    local t = f:CreateTexture("BlackBG", "BACKGROUND")
     t:SetColorTexture(0, 0, 0)
     t:SetAllPoints(f)
-    
-    s:SetAllPoints(f)
-    s:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
-    s:SetSparkleTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-    s:SetStatusBarColor(0, 0.5, 0.8)
-    s:SetFillStyle("STANDARD")
-    s:SetMinMaxValues(0.0, 1.0)
+    local t = f:CreateTexture("StatusBarTexture")
+    t:SetTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+    f:SetStatusBarTexture(t)
+    f:SetSparkleTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
+    f:SetStatusBarColor(0, 0.5, 0.8)
+    f:SetFillStyle("STANDARD")
+    f:SetMinMaxValues(0.0, 1.0)
     
     nameText:SetAllPoints(f)
     local text = nameText:CreateFontString()
@@ -102,11 +102,11 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     ttext:SetJustifyH("RIGHT")
     ttext:SetAllPoints(timerText)
 
+    l:SetFrameLevel(1)
     l:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
     l:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT")
     l:SetHeight(24)
     l:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
-    l:SetSparkleTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
     l:SetStatusBarColor(0.8, 0.6, 0.0)
     l:SetAlpha(0.5)
     l:SetFillStyle("REVERSE")
@@ -131,7 +131,6 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     end)
 
     local ccname, cctext, cctexture, ccstime, ccetime, cccastID
-    local _, LatencySparkle = l:GetSparkleTexture()
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
@@ -163,23 +162,23 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     end)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
-        local val = s:GetMinMaxValues()
+        local val = f:GetMinMaxValues()
         text:SetText(INTERRUPTED)
         ttext:SetText("")
-        s:SetValue(val)
+        f:SetValue(val)
     end)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Unit, function(self, event, unit, name, rank, castid, spellid)
         if(castid == cccastID) then
-            local _, val = s:GetMinMaxValues()
-            s:SetValue(val)
+            local _, val = f:GetMinMaxValues()
+            f:SetValue(val)
         end
     end)
 
     f:SetScript('OnUpdate', function(self, rate)
         if ccstime and ccetime then
             local t = GetTime() * 1000
-            s:SetValue((t - ccstime) / (ccetime-ccstime))
+            f:SetValue((t - ccstime) / (ccetime-ccstime))
             ttext:SetFormattedText("%.1f", (t - ccstime)/1000, (ccetime-ccstime)/1000)
             --ttext:SetFormattedText("%.1f", (ccetime - t)/1000)
         end

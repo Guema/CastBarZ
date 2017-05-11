@@ -7,7 +7,8 @@ local WIDTH_FACTOR = 1/2
 local HEIGHT_FACTOR = 2
 
 function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
-    local obj = CreateFrame("StatusBar", Name, Parent, InheritFrom)
+    local obj = Addon.CreateClass("StatusBar", Name, Parent)
+    --local obj = CreateFrame("StatusBar", Name, Parent, InheritFrom)
     local base = getmetatable(obj).__index
     local nmin, nmax = obj:GetMinMaxValues()
     local showR, showL = true, false
@@ -56,7 +57,6 @@ function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
     obj:SetScript("OnSizeChanged", function(self, w, h)
         sparkleR:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
         sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
-        print(sparkleR:GetHeight(), sparkleL:GetHeight())
     end)
 
     obj:SetScript("OnValueChanged", function(self, val)
