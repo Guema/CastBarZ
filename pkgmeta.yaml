@@ -1,1 +1,8 @@
 package-as: gCastBars
+
+ignore:
+  - gulpfile.js
+  - package.json
+
+license-output: Licence
+

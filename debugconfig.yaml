@@ -1,0 +1,8 @@
+
+debug: true
+
+debug_deploy_paths:
+  - D:/World of Warcraft/Interface/AddOns
+
+ignore:
+  - pkgmeta.yaml

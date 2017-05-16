@@ -1,56 +1,57 @@
+// Constants
+
+const NODEJS_EXCLUDE_PATTERN = ["!build{,/**}", "!node_modules{,/**}"] // ignore folder and all its hierarchy
+const CONFIG_FILES = ["pkgmeta.yaml", "debugconfig.yaml"]
+
 // Requiring node packages :
-var gulp = require('gulp');
-var del = require('del');
-var combine = require('stream-combiner');
-// Require config file :
-var config = require("./gulpconfig.json");
 
-function to_build() {
-    return config.to_include
-        .concat(config.to_exclude.map(function(element) { return "!" + element}))
-        .concat(["!build", "!build/**"]);
+var gulp = require("gulp");
+var del = require("del");
+var combine = require("stream-combiner");
+var yaml = require("js-yaml");
+var fs = require("fs");
+
+// Variables :
+
+var config = {};
+
+function loadconfig(){
+    config = {}
+    CONFIG_FILES.map(function(element){
+        var file = yaml.safeLoad(fs.readFileSync(element));
+        for(var k in file){
+            if(!config[k]){
+                config[k] = file[k]
+            }
+            else if(config[k] instanceof Array){
+                config[k] = config[k].concat(file[k])
+            }
+        }
+    }); 
 }
 
-function to_watch() {
-    return config.to_include
-        .concat(["!gulpfile.js", "!build/", "!build/**"]);
-}
-
-function target() {
-    var tar = ["./build/" + config.addon_name];
-    if(config.wow_addons_path != null)
-    {
-        tar.push(config.wow_addons_path + "/" + config.addon_name);
-    }
-    return tar;
-}
-
-function dests() {
-    return combine(target().map(function(element) {
-        return gulp.dest(element);
-    }));
-}
-
-gulp.task('default', ['build', 'watch']);
-
-gulp.task('build', ['clean', 'reload'], function() {
-    return gulp.src(to_build(), { base: '.' }).pipe(dests());
+//Load config file task
+gulp.task('build', ['clean'], function() {
+    var paths = ["**"]
+    .concat(config.ignore.map(function(element) { return "!" + element}))
+    .concat(NODEJS_EXCLUDE_PATTERN);
+    return gulp.src(paths, {base: '.'}).pipe(combine(config.debug_deploy_paths.map(function(element) {
+        return gulp.dest(element + '/' + config["package-as"]);
+    })));
 });
 
 gulp.task('clean', function() {
-    return del( target(), {force: true});
-});
+    return del(config.debug_deploy_paths.map(function(element) {
+        return element + '/' + config["package-as"] 
+    }));
+})
 
 gulp.task('watch', function() {
-    var watcher = gulp.watch(to_watch(), {interval : 1000}, ['clean', 'build']);
+    var watcher = gulp.watch("**", {interval : 1000}, ['build']);
     watcher.on('change', function(event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
     });
     return watcher;
 });
 
-gulp.task('reload', function() {
-    delete require.cache[require.resolve("./gulpconfig.json")];
-    config = require("./gulpconfig.json");
-    return;
-});
+gulp.task('default', ['build', 'watch']);
