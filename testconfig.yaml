@@ -1,0 +1,4 @@
+build_for_test: true
+
+test_paths: 
+  - build

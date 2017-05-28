@@ -1,1 +1,4 @@
 package-as: gCastBars
+
+ignore:
+  - debug.yaml
