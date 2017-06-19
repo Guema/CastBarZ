@@ -60,6 +60,29 @@ function Addon.CreateClass(Class, Name, Parent)
     return obj
 end
 
+function Addon:CreatePlayerModel(Name, Parent, Region)
+    Name = Name or nil
+    Parent = Parent or UIParent
+
+    local m = CreateFrame("PlayerModel", Name, Parent)
+    m:SetPoint("CENTER", Parent, "CENTER")
+    m:SetSize(Parent:GetSize())
+    m:SetModel("Spells\\Lightning_Area_Disc_State.M2")
+    m:SetModelScale(Parent:GetEffectiveScale())
+    m:SetSequence(28)
+    m:SetPosition(0.0, 0.0, 0.0)
+    m:SetFrameLevel(3)
+    m:Show()
+
+    m:SetScript("OnShow", function(self)
+        self:SetModel("Spells\\Lightning_Area_Disc_State.M2")
+    end)
+
+    return m
+end
+
+
+
 function Addon:CreateCastingBarFrame(Unit, Parent)
     assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
     Parent = Parent or UIParent
@@ -73,11 +96,11 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     f:Hide()
     f:SetSize(220, 24)
     f:SetPoint("BOTTOM", 0, 170)
-    local t = f:CreateTexture("TransparentBG", "BACKGROUND")
+    local t = f:CreateTexture(nil, "BACKGROUND")
     t:SetColorTexture(0, 0, 0, 0.4)
     t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)
     t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 2, -2)
-    local t = f:CreateTexture("BlackBG", "BACKGROUND")
+    local t = f:CreateTexture(nil, "BACKGROUND")
     t:SetColorTexture(0, 0, 0)
     t:SetAllPoints(f)
     local t = f:CreateTexture("StatusBarTexture")
@@ -87,7 +110,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     f:SetStatusBarColor(0, 0.5, 0.8)
     f:SetFillStyle("STANDARD")
     f:SetMinMaxValues(0.0, 1.0)
-    
+
     nameText:SetAllPoints(f)
     local text = nameText:CreateFontString()
     text:SetFont("Fonts\\2002.TTF", 10, "OUTLINE")
@@ -125,7 +148,23 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     alpha:SetDuration(0.5)
     alpha:SetFromAlpha(1.0)
     alpha:SetToAlpha(0.0)
-    
+
+    local m = self:CreatePlayerModel(nil, f)
+
+    local scrollframe = CreateFrame("ScrollFrame", nil, f)
+    scrollframe:SetScrollChild(m)
+    scrollframe:SetPoint("LEFT", f:GetStatusBarTexture(), "LEFT")
+    scrollframe:SetPoint("RIGHT", f:GetStatusBarTexture(), "RIGHT")
+    scrollframe:SetPoint("TOP", f, "TOP")
+    scrollframe:SetPoint("BOTTOM", f, "BOTTOM")
+    scrollframe:SetVerticalScroll(0)
+    scrollframe:SetHorizontalScroll(0)
+
+    f.fadein:SetScript("OnPlay", function(self, ...)
+        f.fadeout:Stop()
+        f:Show()
+    end)
+
     f.fadeout:SetScript("OnFinished", function(self, ...)
         f:Hide()
     end)
@@ -136,8 +175,6 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
         l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
         text:SetFormattedText("%s", string.sub( cctext, 1, 40 ))
-        self:Show()
-        self.fadeout:Stop()
         self.fadein:Play()
     end)
 
@@ -145,8 +182,6 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
         ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
         l:SetValue(0)
         text:SetFormattedText("%s", string.sub( ccname, 1, 40 ))
-        self:Show()
-        self.fadeout:Stop()
         self.fadein:Play()
     end)
 
