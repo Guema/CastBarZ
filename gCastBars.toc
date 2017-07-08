@@ -1,7 +1,7 @@
 ## Title: |c007700FFG|r|c008E00FFu|r|c00A600FFe|r|c00BD00FFm|r|c00D500FFU|r|c00ED00FFI|r - CastBars
-## Notes: A modulable casting bars system (ToDo : Better description)
+## Notes: A modulable animated casting bars system
 ## Interface: 72500
-## Version: A0.02
+## Version: A0.03
 ## Author: Guema
 
 embeds.xml
