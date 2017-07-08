@@ -8,8 +8,8 @@ ignore:
 
 license-output: Licence
 
-test_build: 
-  enabled: true
-  paths:
-    - D:/World of Warcraft/Interface/AddOns
-  ignore:
+#test_build: 
+#  enabled: true
+#  paths:
+#    - D:/World of Warcraft/Interface/AddOns
+#  ignore:
