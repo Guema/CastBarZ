@@ -6,6 +6,6 @@
 
 embeds.xml
 
-GuemUICastBars.lua
-GuemUICastingBarFrame.lua
-GuemUISparkleStatusBar.lua
+Core.lua
+CastingBarFrame.lua
+SparkleStatusBar.lua

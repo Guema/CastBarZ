@@ -1,15 +1,13 @@
-package-as: gCastBars
+package-as: GuemUICastBars
+enable-nolib-creation: no
 
 ignore:
   - gulpfile.js
   - package.json
-  - pkgmeta.yaml
-  - "*.bak"
+
+externals:
+    GuemUIConfig:
+        url: https://github.com/Guema/GuemUIConfig.git
+        tag: latest
 
 license-output: Licence
-
-#test_build: 
-#  enabled: true
-#  paths:
-#    - D:/World of Warcraft/Interface/AddOns
-#  ignore:
