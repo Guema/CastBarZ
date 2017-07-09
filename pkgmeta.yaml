@@ -6,7 +6,7 @@ ignore:
   - package.json
 
 externals:
-    GuemUIConfig:
+    ../GuemUIConfig:
         url: https://github.com/Guema/GuemUIConfig.git
         tag: latest
 
