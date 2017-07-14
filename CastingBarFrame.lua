@@ -81,7 +81,6 @@ function Addon:CreatePlayerModel(Name, Parent, Region)
 end
 
 
-
 function Addon:CreateCastingBarFrame(Unit, Parent)
     assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
     Parent = Parent or UIParent
@@ -90,9 +89,11 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     local l = CreateFrame("StatusBar", nil, f)
     local textoverlay = CreateFrame("Frame", nil, f)
 
+    local config = self.db.profile.units[Unit]
+
     f:Hide()
-    f:SetSize(220, 24)
-    f:SetPoint("BOTTOM", 0, 170)
+    f:SetSize(config.width, config.height)
+    f:SetPoint(config.anchor, Parent, config.parent_anchor, config.Xoffset, config.Yoffset)
     local t = f:CreateTexture(nil, "BACKGROUND")
     t:SetColorTexture(0, 0, 0, 0.4)
     t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)

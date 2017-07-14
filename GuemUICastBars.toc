@@ -3,9 +3,11 @@
 ## Interface: 72500
 ## Version: A0.03
 ## Author: Guema
+## SavedVariables: GuemUICastBarsDB
 
 embeds.xml
 
-Core.lua
-CastingBarFrame.lua
-SparkleStatusBar.lua
+core.lua
+defaults.lua
+castingBarFrame.lua
+sparkleStatusBar.lua
