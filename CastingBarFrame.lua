@@ -1,5 +1,7 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
+local LSM = LibStub("LibSharedMedia-3.0")
+
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
@@ -102,7 +104,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     t:SetColorTexture(0, 0, 0)
     t:SetAllPoints(f)
     local t = f:CreateTexture("StatusBarTexture")
-    t:SetTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+    t:SetTexture(LSM:Fetch("statusbar", "Solid"))
     f:SetStatusBarTexture(t)
     f:SetSparkleTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
     f:SetStatusBarColor(0, 0.5, 0.8)
@@ -139,7 +141,8 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     l:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT")
     l:SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT")
     l:SetHeight(24)
-    l:SetStatusBarTexture("Interface\\AddOns\\"..AddonName.."\\Media\\Solid")
+    
+    l:SetStatusBarTexture(LSM:Fetch("statusbar", "Solid"))
     l:SetStatusBarColor(0.8, 0.6, 0.0)
     l:SetAlpha(0.5)
     l:SetFillStyle("REVERSE")

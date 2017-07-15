@@ -3,8 +3,8 @@ local Addon = _G[AddonName]
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
-local WIDTH_FACTOR = 1
-local HEIGHT_FACTOR = 2
+local WIDTH_FACTOR = 0.36
+local HEIGHT_FACTOR = 1.8
 
 function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
     local obj = Addon.CreateClass("StatusBar", Name, Parent)
