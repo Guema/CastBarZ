@@ -6,8 +6,11 @@ ignore:
   - package.json
 
 externals:
-    ../GuemUIConfig:
-        url: https://github.com/Guema/GuemUIConfig.git
-        tag: latest
+  ../GuemUIConfig:
+    url: https://github.com/Guema/GuemUIConfig.git
+    tag: latest
+  ../GuemUIMedia:
+    url: https://github.com/Guema/GuemUIMedia.git 
+    tag: latest
 
 license-output: Licence
