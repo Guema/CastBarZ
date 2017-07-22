@@ -18,6 +18,7 @@ local IsHarmfulSpell = IsHarmfulSpell
 local IsHelpfulSpell = IsHelpfulSpell
 local UIParent = UIParent
 local INTERRUPTED = INTERRUPTED
+local CHANNELING = CHANNELING
 
 local LATENCY_TOLERENCE = 100
 
@@ -62,24 +63,67 @@ function Addon.CreateClass(Class, Name, Parent)
     return obj
 end
 
-function Addon:CreatePlayerModel(Name, Parent, Region)
-    Name = Name or nil
+function Addon:CreateModel(Name, Parent, ...)
     Parent = Parent or UIParent
+    local obj = CreateFrame("PlayerModel", Name, Parent, ...)
+    local base = getmetatable(obj).__index
+    local mdl
+    function obj:SetModel(path)
+        mdl = path
+    end
 
-    local m = CreateFrame("PlayerModel", Name, Parent)
-    m:SetPoint("CENTER", Parent, "CENTER")
-    m:SetSize(Parent:GetSize())
-    m:SetModel("Spells\\Lightning_Area_Disc_State.M2")
-    m:SetModelScale(Parent:GetEffectiveScale())
-    m:SetSequence(28)
-    m:SetPosition(0.0, 0.0, 0.0)
-    m:Show()
-
-    m:SetScript("OnShow", function(self)
-        self:SetModel("Spells\\Lightning_Area_Disc_State.M2")
+    obj:SetScript("OnModelLoaded", function(self)
+        --self:MakeCurrentCameraCustom()
+        self:SetPortraitZoom(1)
+        self:ClearTransform()
+        --self:SetPosition(3, 0, -1)
+        self:SetTransform(1, 0, 0.050, 0, 0, 0, 0.200)
+        --self:SetCameraPosition(0, 0, 0)
     end)
 
-    return m
+    obj:SetScript("OnShow", function(self)
+        pcall(base.SetModel, self, mdl)
+    end)
+
+    obj:SetScript("OnSizeChanged", function(self, w, h)
+        if w < 0.5 or h < 0.5 then self:Hide() else self:Show() end
+    end)
+
+    return obj
+end
+
+
+function Addon:CreateBoundedModel(Name, Parent, ...)
+    Parent = Parent or UIParent
+    local obj = CreateFrame("ScrollFrame", Name, Parent, ...)
+    local base = getmetatable(obj).__index
+    local frm = CreateFrame("Frame", Name, obj)
+    local mdl = self:CreateModel(nil, frm)
+    --mdl:SetFrameLevel(3)
+
+    function obj:SetModel(path)
+        mdl:SetModel(path)
+    end
+
+    function obj:GetBoundedModel()
+        return mdl
+    end
+
+    mdl:SetScript("OnModelLoaded", function(self)
+        --self:MakeCurrentCameraCustom()
+        self:SetPortraitZoom(1)
+        self:ClearTransform()
+        self:SetPosition(3, 0, -1)
+        --self:SetTransform(1, 0, 0.050, 0, 0, 0, 0.200)
+        --self:SetCameraPosition(0, 0, 0)
+        obj:SetScrollChild(frm)
+    end)
+
+    obj:SetScript("OnSizeChanged", function(self, w, h)
+        if w < 0.5 or h < 0.5 then frm:Hide() else frm:Show() end
+    end)
+
+    return obj
 end
 
 
@@ -111,17 +155,11 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     f:SetFillStyle("STANDARD")
     f:SetMinMaxValues(0.0, 1.0)
 
-    local m = self:CreatePlayerModel(nil, f)
+    local m = self:CreateBoundedModel(nil, f)
+    m:SetModel("Spells\\Lightning_Area_Disc_State.M2")
     m:SetFrameLevel(2)
-
-    local scrollframe = CreateFrame("ScrollFrame", nil, f)
-    scrollframe:SetScrollChild(m)
-    scrollframe:SetPoint("LEFT", f:GetStatusBarTexture(), "LEFT")
-    scrollframe:SetPoint("RIGHT", f:GetStatusBarTexture(), "RIGHT")
-    scrollframe:SetPoint("TOP", f, "TOP")
-    scrollframe:SetPoint("BOTTOM", f, "BOTTOM")
-    scrollframe:SetVerticalScroll(0)
-    scrollframe:SetHorizontalScroll(0)
+    m:SetAllPoints(f:GetStatusBarTexture())
+    m:GetBoundedModel():SetAllPoints(f)
 
     textoverlay:SetAllPoints(f)
     textoverlay:SetFrameLevel(3)

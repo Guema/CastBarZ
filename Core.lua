@@ -2,7 +2,7 @@ local AddonName, AddonTable = ...
 local _G = _G
 local DB = LibStub("AceDB-3.0")
 
-_G[AddonName] = LibStub("AceAddon-3.0"):NewAddon(AddonName)
+_G[AddonName] = LibStub("AceAddon-3.0"):NewAddon(AddonTable, AddonName)
 local Addon = _G[AddonName]
 
 local defaults = {
@@ -27,5 +27,5 @@ function Addon:OnInitialize()
 end
 
 function Addon:OnEnable()
-    self.CastingBar = self:CreateCastingBarFrame("player")
+    self.player = self:CreateCastingBarFrame("player")
 end
