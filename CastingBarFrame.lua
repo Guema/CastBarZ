@@ -95,10 +95,9 @@ end
 
 function Addon:CreateBoundedModel(Name, Parent, ...)
     Parent = Parent or UIParent
-    local obj = CreateFrame("ScrollFrame", Name, Parent, ...)
+    local obj = CreateFrame("Frame", Name, Parent, ...)
     local base = getmetatable(obj).__index
-    local frm = CreateFrame("Frame", Name, obj)
-    local mdl = self:CreateModel(nil, frm)
+    local mdl = self:CreateModel(nil, obj)
     --mdl:SetFrameLevel(3)
 
     function obj:SetModel(path)
@@ -114,13 +113,15 @@ function Addon:CreateBoundedModel(Name, Parent, ...)
         self:SetPortraitZoom(1)
         self:ClearTransform()
         self:SetPosition(3, 0, -1)
+        obj:SetClipsChildren(true)
+        
         --self:SetTransform(1, 0, 0.050, 0, 0, 0, 0.200)
         --self:SetCameraPosition(0, 0, 0)
-        obj:SetScrollChild(frm)
+        --obj:SetScrollChild(frm)
     end)
 
     obj:SetScript("OnSizeChanged", function(self, w, h)
-        if w < 0.5 or h < 0.5 then frm:Hide() else frm:Show() end
+        if w < 0.5 or h < 0.5 then mdl:Hide() else mdl:Show() end
     end)
 
     return obj
@@ -139,7 +140,7 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
 
     f:Hide()
     f:SetSize(config.width, config.height)
-    f:SetPoint(config.anchor, Parent, config.parent_anchor, config.Xoffset, config.Yoffset)
+    f:SetPoint("CENTER", Parent, "BOTTOM", config.Xoffset, config.Yoffset)
     local t = f:CreateTexture(nil, "BACKGROUND")
     t:SetColorTexture(0, 0, 0, 0.4)
     t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)

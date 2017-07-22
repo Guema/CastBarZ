@@ -1,5 +1,6 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
+local getmetatable = getmetatable
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
