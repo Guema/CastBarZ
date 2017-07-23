@@ -8,13 +8,11 @@ local Addon = _G[AddonName]
 
 local defaults = {
     profile = {
-        units = {
-            player = {
-                width = 220,
-                height = 24,
-                Xoffset = 0,
-                Yoffset = 190
-            }
+        player = {
+            width = 220,
+            height = 24,
+            xoffset = 0,
+            yoffset = 190
         }
     }
 }

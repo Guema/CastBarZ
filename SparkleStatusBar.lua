@@ -36,8 +36,8 @@ function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
 
     function obj:SetStatusBarColor(r, g, b, a)
         base.SetStatusBarColor(self, r, g, b, a)
-        sparkleR:SetVertexColor(r, g, b, a)
-        sparkleL:SetVertexColor(r, g, b, a)
+        sparkleR:SetVertexColor(r*1.1, g*1.1, b*1.1, a)
+        sparkleL:SetVertexColor(r*1.1, g*1.1, b*1.1, a)
     end
 
     function obj:SetFillStyle(style)

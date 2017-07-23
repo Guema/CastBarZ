@@ -114,7 +114,7 @@ function Addon:CreateBoundedModel(Name, Parent, ...)
         self:ClearTransform()
         self:SetPosition(3, 0, -1)
         obj:SetClipsChildren(true)
-        
+
         --self:SetTransform(1, 0, 0.050, 0, 0, 0, 0.200)
         --self:SetCameraPosition(0, 0, 0)
         --obj:SetScrollChild(frm)
@@ -136,11 +136,16 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
     local l = CreateFrame("StatusBar", nil, f)
     local textoverlay = CreateFrame("Frame", nil, f)
 
-    local config = self.db.profile.units[Unit]
+    local config = self.db.profile[Unit]
+    function f:Reload()
+        f:SetSize(config.width, config.height)
+        f:SetPoint("CENTER", Parent, "BOTTOM", config.xoffset, config.yoffset)
+    end
 
     f:Hide()
-    f:SetSize(config.width, config.height)
-    f:SetPoint("CENTER", Parent, "BOTTOM", config.Xoffset, config.Yoffset)
+    f:Reload()
+    --f:SetSize(config.width, config.height)
+    --f:SetPoint("CENTER", Parent, "BOTTOM", config.xoffset, config.yoffset)
     local t = f:CreateTexture(nil, "BACKGROUND")
     t:SetColorTexture(0, 0, 0, 0.4)
     t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)
@@ -234,6 +239,8 @@ function Addon:CreateCastingBarFrame(Unit, Parent)
 
     f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
         ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitChannelInfo(unit)
+        local val = f:GetMinMaxValues()
+        l:SetValue(val)
         self.fadeout:Play()
     end)
 
