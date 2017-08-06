@@ -3,11 +3,13 @@
 ## Interface: 72500
 ## Version: alpha0.04
 ## Author: Guema
-## SavedVariables: GuemUICastBarsDB
+## SavedVariables: GuemUI_CastBarsDB
 
-embeds.xml
+Embeds.xml
 
-core.lua
-defaults.lua
-castingBarFrame.lua
-sparkleStatusBar.lua
+GuemUI_CastBars.lua
+Components\CastingBar2D.lua
+Components\CastingBar3D.lua
+Components\ModelFrame.lua
+Components\SparkleStatusBar.lua
+

@@ -1,15 +1,11 @@
-package-as: GuemUICastBars
+package-as: GuemUI_CastBars
 enable-nolib-creation: no
 
-ignore:
-  - gulpfile.js
-  - package.json
-
 externals:
-  ../GuemUIConfig:
+  ../GuemUI_Config:
     url: https://github.com/Guema/GuemUIConfig.git
     tag: latest
-  ../GuemUIMedia:
+  ../GuemUI_Media:
     url: https://github.com/Guema/GuemUIMedia.git 
     tag: latest
 

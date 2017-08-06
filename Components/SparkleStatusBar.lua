@@ -1,15 +1,15 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
 local getmetatable = getmetatable
+local LEW = LibStub("LibEventWrapper-1.0")
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
 local WIDTH_FACTOR = 0.45
 local HEIGHT_FACTOR = 1.8
 
-function Addon.CreateSparkleStatusBar(Name, Parent, InheritFrom)
-    local obj = Addon.CreateClass("StatusBar", Name, Parent)
-    --local obj = CreateFrame("StatusBar", Name, Parent, InheritFrom)
+function Addon.CreateSparkleStatusBar(Name, Parent, ...)
+    local obj = LEW:WrapFrame(CreateFrame("StatusBar", Name, Parent, ...))
     local base = getmetatable(obj).__index
     local nmin, nmax = obj:GetMinMaxValues()
     local showR, showL = true, false

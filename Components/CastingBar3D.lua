@@ -1,6 +1,7 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
 local LSM = LibStub("LibSharedMedia-3.0")
+local LEW = LibStub("LibEventWrapper-1.0")
 
 
 assert(Addon ~= nil, AddonName.." could not be load")
@@ -21,47 +22,6 @@ local INTERRUPTED = INTERRUPTED
 local CHANNELING = CHANNELING
 
 local LATENCY_TOLERENCE = 100
-
-function Addon.CreateClass(Class, Name, Parent)
-    Parent = Parent or UIParent
-
-    local obj = CreateFrame(Class, Name, Parent)
-    local base = getmetatable(obj).__index
-    obj.callbacks = {}
-
-    function obj:RegisterEvent(event, callback)
-        assert(type(callback) == "function", "Usage : obj:RegisterUnitEvent(string event, function callback")
-        self.callbacks[event] = callback
-        base.RegisterEvent(self, event)
-    end
-
-    --Wrapping RegisterUnitEvent method
-    function obj:RegisterUnitEvent(event, unit, callback)
-        assert(type(callback) == "function", "Usage : obj:RegisterUnitEvent(string event, string unitID, function callback")
-        self.callbacks[event] = callback
-        base.RegisterUnitEvent(self, event, unit)
-    end
-
-    --Wrapping UnregisterAllEvent method
-    function obj:UnregisterAllEvents()
-        self.callbacks = {}
-        base.UnregisterAllEvents()
-    end
-
-    --Wrapping UnregisterEvent method
-    function obj:UnregisterEvent(event)
-        assert(type(event) == "string", "Usage : obj:UnregisterEvent(string event)")
-        self.callbacks[event] = nil
-        base.UnregisterEvent(self, event)
-    end
-    
-    --SetScript will call self.callbacks[event] on "OnEvent" fired
-    obj:SetScript("OnEvent", function(self, event, ...)
-        self.callbacks[event](self, event, ...)
-    end)
-
-    return obj
-end
 
 function Addon:CreateModel(Name, Parent, ...)
     Parent = Parent or UIParent
@@ -128,8 +88,8 @@ function Addon:CreateBoundedModel(Name, Parent, ...)
 end
 
 
-function Addon:CreateCastingBarFrame(Unit, Parent)
-    assert(type(Unit) == "string", "Usage : CreateCastingBarFrame(string Unit)")
+function Addon:CreateCastingBar3D(Unit, Parent)
+    assert(type(Unit) == "string", "Usage : CreateCastingBar3D(Unit[, Parent]) : Wrong argument type for Unit argument")
     Parent = Parent or UIParent
 
     local f = self.CreateSparkleStatusBar(AddonName..Unit, Parent)
