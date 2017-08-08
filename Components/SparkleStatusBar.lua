@@ -1,7 +1,11 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
-local getmetatable = getmetatable
 local LEW = LibStub("LibEventWrapper-1.0")
+
+local getmetatable = getmetatable
+local math = math
+
+
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
@@ -11,9 +15,9 @@ local HEIGHT_FACTOR = 1.8
 function Addon.CreateSparkleStatusBar(Name, Parent, ...)
     local obj = LEW:WrapFrame(CreateFrame("StatusBar", Name, Parent, ...))
     local base = getmetatable(obj).__index
-    local nmin, nmax = obj:GetMinMaxValues()
-    local showR, showL = true, false
+    local vmin, vmax = base.GetMinMaxValues(obj)
     local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
+    local fillStyle = base.GetFillStyle(obj)
 
     sparkleR:SetBlendMode("ADD")
     sparkleL:SetBlendMode("ADD") 
@@ -27,32 +31,22 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
         return sparkleR, sparkleL
     end
 
-    function obj:SetStatusBarTexture(texture)
-        base.SetStatusBarTexture(self, texture)
-        local texture = base.GetStatusBarTexture(self)
+    hooksecurefunc(obj, "SetStatusBarTexture", function(self, texture)
         sparkleR:SetPoint("CENTER", texture, "RIGHT")
         sparkleL:SetPoint("CENTER", texture, "LEFT")
-    end
+    end)
 
-    function obj:SetStatusBarColor(r, g, b, a)
-        base.SetStatusBarColor(self, r, g, b, a)
-        sparkleR:SetVertexColor(r*1.1, g*1.1, b*1.1, a)
-        sparkleL:SetVertexColor(r*1.1, g*1.1, b*1.1, a)
-    end
+    hooksecurefunc(obj, "SetMinMaxValues", function(self, newvmin, newvmax)
+        vmin, vmax = newvmin, newvmax
+    end)
 
-    function obj:SetFillStyle(style)
-        base.SetFillStyle(self, style)
-        if(style == "STANDARD" or style == "STANDARD_NO_RANGE_FILL") then
-            showR, showL = true, false
-        elseif (style == "REVERSE") then
-            showR, showL = false, true
-        elseif (style == "CENTER") then
-            showR, showL = true, true
-        end
-    end
+    hooksecurefunc(obj, "SetStatusBarColor", function(self, r, g, b, a)
+        sparkleR:SetVertexColor(r, g, b, a)
+        sparkleL:SetVertexColor(r, g, b, a)
+    end)
 
-    obj:SetScript("OnMinMaxChanged", function(self, newmin, newmax)
-        nmin, nmax = newmin, newmax
+    hooksecurefunc(obj, "SetFillStyle", function(self, style)
+        fillStyle = base.GetFillStyle(obj)
     end)
 
     obj:SetScript("OnSizeChanged", function(self, w, h)
@@ -60,12 +54,15 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
         sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
     end)
 
-    obj:SetScript("OnValueChanged", function(self, val)
-        if (val > nmin and val < nmax) then
-            if(showR) then sparkleR:Show() else sparkleR:Hide() end
-            if(showL) then sparkleL:Show() else sparkleL:Hide() end
+    obj:SetScript("OnValueChanged", function(self, val) 
+        if(fillStyle == "STANDARD" or fillStyle == "STANDARD_NO_RANGE_FILL" or fillStyle == "CENTER") then
+            sparkleR:Show()
         else
             sparkleR:Hide()
+        end
+        if(fillStyle == "REVERSE" or fillStyle == "CENTER") then
+            sparkleL:Show()
+        else
             sparkleL:Hide()
         end
     end)
