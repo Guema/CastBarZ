@@ -6,5 +6,4 @@
     <Include file="Libs\AceEvent-3.0\AceEvent-3.0.xml"/>
     <Include file="Libs\LibSharedMedia-3.0\lib.xml"/>
     <Include file="Libs\AceDB-3.0\AceDB-3.0.xml"/>
-    <Include file="Libs\LibEventWrapper-1.0\LibEventWrapper-1.0.xml"/>
 </Ui>
