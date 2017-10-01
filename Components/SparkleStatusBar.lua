@@ -1,11 +1,9 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
-local LEW = LibStub("LibEventWrapper-1.0")
+local AceEvent = LibStub("AceEvent-3.0")
 
 local getmetatable = getmetatable
 local math = math
-
-
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
@@ -13,11 +11,13 @@ local WIDTH_FACTOR = 0.45
 local HEIGHT_FACTOR = 1.8
 
 function Addon.CreateSparkleStatusBar(Name, Parent, ...)
-    local obj = LEW:WrapFrame(CreateFrame("StatusBar", Name, Parent, ...))
+    local obj = AceEvent:Embed(CreateFrame("StatusBar", Name, Parent, ...))
     local base = getmetatable(obj).__index
+    
     local vmin, vmax = base.GetMinMaxValues(obj)
     local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
     local fillStyle = base.GetFillStyle(obj)
+    local hideOnBounds = true
 
     sparkleR:SetBlendMode("ADD")
     sparkleL:SetBlendMode("ADD") 
@@ -26,9 +26,14 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
         sparkleR:SetTexture(texture)
         sparkleL:SetTexture(texture)
     end
-
+    
     function obj:GetSparkleTexture()
         return sparkleR, sparkleL
+    end
+
+    function obj:HideSparklesOnBounds(value)
+        value = value == true
+        hideOnBounds = value
     end
 
     hooksecurefunc(obj, "SetStatusBarTexture", function(self, texture)

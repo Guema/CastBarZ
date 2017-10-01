@@ -1,8 +1,6 @@
 local AddonName, AddonTable = ...
 local Addon = _G[AddonName]
 local LSM = LibStub("LibSharedMedia-3.0")
-local LEW = LibStub("LibEventWrapper-1.0")
-
 
 assert(Addon ~= nil, AddonName.." could not be load")
 
@@ -176,57 +174,78 @@ function Addon:CreateCastingBar3D(Unit, Parent)
         f:Hide()
     end)
 
-    local ccname, cctext, cctexture, ccstime, ccetime, cccastID
+    do
+        local ccname, cctext, cctexture, ccstime, ccetime, currentTime, cccastID 
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_START", Unit, function(self, event, unit, ...)
-        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
-        l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
-        nametext:SetFormattedText("%s", string.sub( cctext, 1, 40 ))
-        self.fadein:Play()
-    end)
+        f:RegisterEvent("UNIT_SPELLCAST_START", function(event, unit, ...)
+            if (unit ~= "player") then
+                return
+            end
+            ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
+            currentTime = ccstime
+            l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
+            nametext:SetFormattedText("%s", string.sub( cctext, 1, 40 ))
+            f.fadein:Play()
+        end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", Unit, function(self, event, unit, ...)
-        ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
-        l:SetValue(0)
-        nametext:SetFormattedText("%s", string.sub( ccname, 1, 40 ))
-        self.fadein:Play()
-    end)
+        f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", function(event, unit, ...)
+            if (unit ~= "player") then
+                return
+            end
+            ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
+            l:SetValue(0)
+            nametext:SetFormattedText("%s", string.sub( ccname, 1, 40 ))
+            f.fadein:Play()
+        end)
 
+        f:RegisterEvent("UNIT_SPELLCAST_STOP", function(event, unit, name, rank, castid, spellid)
+            if (unit ~= "player") then
+                return
+            end
+            ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
+            f.fadeout:Play()
+        end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
-        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
-        self.fadeout:Play()
-    end)
+        f:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", function(event, unit, name, rank, castid, spellid)
+            if (unit ~= "player") then
+                return
+            end
+            ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitChannelInfo(unit)
+            local val = f:GetMinMaxValues()
+            l:SetValue(val)
+            f.fadeout:Play()
+        end)
 
-    f:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", Unit, function(self, event, unit, name, rank, castid, spellid)
-        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitChannelInfo(unit)
-        local val = f:GetMinMaxValues()
-        l:SetValue(val)
-        self.fadeout:Play()
-    end)
-
-    f:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", Unit, function(self, event, unit, name, rank, castid, spellid)
-        local val = f:GetMinMaxValues()
-        nametext:SetText(INTERRUPTED)
-        timertext:SetText("")
-        f:SetValue(val)
-    end)
-
-    f:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Unit, function(self, event, unit, name, rank, castid, spellid)
-        if(castid == cccastID) then
-            local _, val = f:GetMinMaxValues()
+        f:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", function(event, unit, name, rank, castid, spellid)
+            if (unit ~= "player") then
+                return
+            end
+            local val = f:GetMinMaxValues()
+            nametext:SetText(INTERRUPTED)
+            timertext:SetText("")
             f:SetValue(val)
-        end
-    end)
+        end)
 
-    f:SetScript('OnUpdate', function(self, rate)
-        if ccstime and ccetime then
-            local t = GetTime() * 1000
-            f:SetValue((t - ccstime) / (ccetime-ccstime))
-            timertext:SetFormattedText("%.1f", (t - ccstime)/1000, (ccetime-ccstime)/1000)
-            --ttext:SetFormattedText("%.1f", (ccetime - t)/1000)
-        end
-    end)
+        f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(event, unit, name, rank, castid, spellid)
+            if (unit ~= "player") then
+                return
+            end
+            if(castid == cccastID) then
+                local _, val = f:GetMinMaxValues()
+                currentTime = ccetime
+                f:SetValue(val)
+            end
+        end)
+
+        f:SetScript("OnUpdate", function(self, rate)
+            if ccstime and ccetime then
+                currentTime = currentTime + rate * 1000
+                f:SetValue((currentTime - ccstime) / (ccetime-ccstime))
+                timertext:SetFormattedText("%.1f", (currentTime - ccstime)/1000, (ccetime-ccstime)/1000)
+            end
+        end)
+
+    end
 
     return f
 end
