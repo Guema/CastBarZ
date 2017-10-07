@@ -20,7 +20,7 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
     local hideOnBounds = true
 
     sparkleR:SetBlendMode("ADD")
-    sparkleL:SetBlendMode("ADD") 
+    sparkleL:SetBlendMode("ADD")
 
     function obj:SetSparkleTexture(texture)
         sparkleR:SetTexture(texture)
@@ -60,15 +60,12 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
     end)
 
     obj:SetScript("OnValueChanged", function(self, val) 
-        if(fillStyle == "STANDARD" or fillStyle == "STANDARD_NO_RANGE_FILL" or fillStyle == "CENTER") then
-            sparkleR:Show()
+        if(hideOnBounds) then
+            sparkleR:SetShown(vmin < val and vmax > val)
+            sparkleL:SetShown(false)
         else
-            sparkleR:Hide()
-        end
-        if(fillStyle == "REVERSE" or fillStyle == "CENTER") then
-            sparkleL:Show()
-        else
-            sparkleL:Hide()
+            sparkleR:SetShown(true)
+            sparkleL:SetShown(false)
         end
     end)
 
