@@ -129,7 +129,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
     textoverlay:SetAllPoints(f)
     textoverlay:SetFrameLevel(3)
     local nametext = textoverlay:CreateFontString()
-    nametext:SetFont("Fonts\\2002.TTF", 10, "OUTLINE")
+    nametext:SetFont("Fonts\\FRIZQT__.TTF", 10, "OUTLINE")
     nametext:SetAllPoints(f)
     nametext:SetTextColor( 1, 1, 1)
 
@@ -137,7 +137,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
     timertext:SetPoint("TOPLEFT", f, "TOPRIGHT", -60, 0)
     timertext:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -2, 0)
     timertext:SetWidth(60)
-    timertext:SetFont("Fonts\\2002.TTF", 8, "OUTLINE")
+    timertext:SetFont("Fonts\\FRIZQT__.TTF", 8, "OUTLINE")
     timertext:SetJustifyH("RIGHT")
 
     l:SetFrameLevel(1)
@@ -157,21 +157,35 @@ function Addon:CreateCastingBar3D(Unit, Parent)
     alpha:SetDuration(0.2)
     alpha:SetFromAlpha(0.0)
     alpha:SetToAlpha(1.0)
+    alpha:SetSmoothing("IN_OUT")
 
     f.fadeout = f:CreateAnimationGroup()
     f.fadeout:SetLooping("NONE")
     local alpha = f.fadeout:CreateAnimation("Alpha")
-    alpha:SetDuration(0.5)
+    alpha:SetDuration(0.2)
     alpha:SetFromAlpha(1.0)
     alpha:SetToAlpha(0.0)
+    alpha:SetStartDelay(0.4)
+    alpha:SetSmoothing("IN_OUT")
+
+    local currently_casting = false
+
+    function f:GetCurrentlyCasting()
+        return currently_casting
+    end
 
     f.fadein:SetScript("OnPlay", function(self, ...)
+        currently_casting = true
         f.fadeout:Stop()
-        f:Show()
+        f:SetShown(true)
+    end)
+
+    f.fadeout:SetScript("OnPlay", function (self, ...)
+        currently_casting = false
     end)
 
     f.fadeout:SetScript("OnFinished", function(self, ...)
-        f:Hide()
+        f:SetShown(false)
     end)
 
     do
@@ -193,6 +207,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
                 return
             end
             ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
+            currentTime = ccetime
             l:SetValue(0)
             nametext:SetFormattedText("%s", string.sub( ccname, 1, 40 ))
             f.fadein:Play()
@@ -202,7 +217,6 @@ function Addon:CreateCastingBar3D(Unit, Parent)
             if (unit ~= "player") then
                 return
             end
-            ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
             f.fadeout:Play()
         end)
 
@@ -210,9 +224,6 @@ function Addon:CreateCastingBar3D(Unit, Parent)
             if (unit ~= "player") then
                 return
             end
-            ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitChannelInfo(unit)
-            local val = f:GetMinMaxValues()
-            l:SetValue(val)
             f.fadeout:Play()
         end)
 
@@ -223,7 +234,9 @@ function Addon:CreateCastingBar3D(Unit, Parent)
             local val = f:GetMinMaxValues()
             nametext:SetText(INTERRUPTED)
             timertext:SetText("")
-            f:SetValue(val)
+            f:SetValue(0)
+            l:SetValue(0)
+            f.fadeout:Play()
         end)
 
         f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", function(event, unit, name, rank, castid, spellid)
@@ -238,10 +251,10 @@ function Addon:CreateCastingBar3D(Unit, Parent)
         end)
 
         f:SetScript("OnUpdate", function(self, rate)
-            if ccstime and ccetime then
+            if (currently_casting) then
                 currentTime = currentTime + rate * 1000
                 f:SetValue((currentTime - ccstime) / (ccetime-ccstime))
-                timertext:SetFormattedText("%.1f", (currentTime - ccstime)/1000, (ccetime-ccstime)/1000)
+                timertext:SetFormattedText("%.1f", math.abs((currentTime - ccstime)/1000), math.abs((ccetime-ccstime)/1000))
             end
         end)
 
