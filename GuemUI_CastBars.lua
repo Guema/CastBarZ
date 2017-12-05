@@ -1,17 +1,72 @@
-local AddonName, AddonTable = ...
-local _G = _G
-local LoadAddOn = LoadAddOn
+local AddonName, Addon = ...
 local AceDB = LibStub("AceDB-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 
-_G[AddonName] = LibStub("AceAddon-3.0"):NewAddon(AddonTable, AddonName)
-local Addon = _G[AddonName]
+_G[AddonName] = LibStub("AceAddon-3.0"):NewAddon(Addon, AddonName, "AceConsole-3.0")
+local Addon = Addon
+
+local OptionTable = {
+    name = "CastBars Options",
+    type = "group",
+    childGroups = "tab",
+    handler = Addon,
+    args = {
+        player = {
+            name = "General",
+            type = "group",
+            desc = "Enable/Disable",
+            args = {
+                width = {
+                    name = "Width",
+                    type = "range",
+                    min = 1,
+                    softMax = 500,
+                    step = 1,
+                    order = 1,
+                    set = "SetWidth",
+                    get = "GetWidth"
+                },
+                height = {
+                    name = "Height",
+                    type = "range",
+                    min = 0,
+                    softMax = 50,
+                    step = 1,
+                    order = 2,
+                    set = "SetHeight",
+                    get = "GetHeight"
+                },
+                xoffset = {
+                    name = "X offset",
+                    type = "range",
+                    softMin = -2000,
+                    softMax = 2000,
+                    step = 1,
+                    order = 3,
+                    set = "SetXOffset",
+                    get = "GetXOffset"
+                },
+                yoffset = {
+                    name = "Y offet",
+                    type = "range",
+                    softMin = -2000,
+                    softMax = 2000,
+                    step = 1,
+                    order = 4,
+                    set = "SetYOffset",
+                    get = "GetYOffset"
+                }
+            }
+        }
+    }
+}
 
 local defaults = {
     profile = {
         player = {
-            show_name = false,
-            show_timer = false,
-            show_latency = false,
+            show_name = true,
+            show_timer = true,
+            show_latency = true,
             status_bar_texture = "",
             status_bar_color = {r = 0, g = 0.4, b = 0.8, a = 1},
             background_color = {r = 0, g = 0, b = 0, a = 1},
@@ -25,10 +80,61 @@ local defaults = {
 
 function Addon:OnInitialize()
     _G.CastingBarFrame:UnregisterAllEvents()
-    self.db = AceDB:New(AddonName.."DB", defaults, true)
-    LoadAddOn("GuemUIConfig")
+
+    self.db = AceDB:New(AddonName .. "DB", defaults, true)
+    AceConfigRegistry:RegisterOptionsTable("CastBarz", OptionTable)
+    self:RegisterChatCommand("Castbarz", "ChatCommand")
+
+    if LoadAddOn("GuemUI_Config") then
+    end
+
+    --LoadAddOn("GuemUIConfig")
 end
 
 function Addon:OnEnable()
     self.player = self:CreateCastingBar3D("player")
+end
+
+function Addon:ChatCommand(input)
+    LibStub("AceConfigCmd-3.0").HandleCommand(Addon, "Castbarz", "CastBarz", input)
+end
+
+-- Callbacks only support player castbar right now
+
+function Addon:SetWidth(info, value)
+    self.db.profile.player.width = value
+    self.player:SetWidth(value)
+end
+
+function Addon:SetHeight(info, value)
+    self.db.profile.player.height = value
+    self.player:SetHeight(value)
+end
+
+function Addon:SetXOffset(info, value)
+    self.db.profile.player.xoffset = value
+    point, relativeTo, relativePoint, _, yOfs = self.player:GetPoint()
+    self.player:SetPoint(point, relativeTo, relativePoint, value, yOfs)
+end
+
+function Addon:SetYOffset(info, value)
+    self.db.profile.player.yoffset = value
+    point, relativeTo, relativePoint, xOfs = self.player:GetPoint()
+    self.player:SetPoint(point, relativeTo, relativePoint, xOfs, value)
+end
+
+function Addon:GetWidth(info)
+    return self.db.profile.player.width
+end
+
+function Addon:GetHeight(info)
+    return self.db.profile.player.height
+end
+
+function Addon:GetXOffset(info)
+    return self.db.profile.player.xoffset
+end
+
+function Addon:GetYOffset(info)
+    return self.db.profile.player.yoffset
 end
