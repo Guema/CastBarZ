@@ -11,5 +11,5 @@ GuemUI_CastBars.lua
 Components\CastingBar2D.lua
 Components\CastingBar3D.lua
 Components\ModelFrame.lua
+Components\BoundedModelFrame.lua
 Components\SparkleStatusBar.lua
-

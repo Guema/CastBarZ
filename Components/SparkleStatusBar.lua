@@ -5,69 +5,91 @@ local AceEvent = LibStub("AceEvent-3.0")
 local getmetatable = getmetatable
 local math = math
 
-assert(Addon ~= nil, AddonName.." could not be load")
+assert(Addon ~= nil, AddonName .. " could not be load")
 
 local WIDTH_FACTOR = 0.45
 local HEIGHT_FACTOR = 1.8
 
 function Addon.CreateSparkleStatusBar(Name, Parent, ...)
-    local obj = AceEvent:Embed(CreateFrame("StatusBar", Name, Parent, ...))
-    local base = getmetatable(obj).__index
-    
-    local vmin, vmax = base.GetMinMaxValues(obj)
-    local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
-    local fillStyle = base.GetFillStyle(obj)
-    local hideOnBounds = true
+  local obj = AceEvent:Embed(CreateFrame("StatusBar", Name, Parent, ...))
+  local base = getmetatable(obj).__index
 
-    sparkleR:SetBlendMode("ADD")
-    sparkleL:SetBlendMode("ADD")
+  local vmin, vmax = base.GetMinMaxValues(obj)
+  local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
+  local fillStyle = base.GetFillStyle(obj)
+  local hideOnBounds = true
 
-    function obj:SetSparkleTexture(texture)
-        sparkleR:SetTexture(texture)
-        sparkleL:SetTexture(texture)
+  sparkleR:SetBlendMode("ADD")
+  sparkleL:SetBlendMode("ADD")
+
+  function obj:SetSparkleTexture(texture)
+    sparkleR:SetTexture(texture)
+    sparkleL:SetTexture(texture)
+  end
+
+  function obj:GetSparkleTexture()
+    return sparkleR, sparkleL
+  end
+
+  function obj:HideSparklesOnBounds(value)
+    value = value == true
+    hideOnBounds = value
+  end
+
+  hooksecurefunc(
+    obj,
+    "SetStatusBarTexture",
+    function(self, texture)
+      sparkleR:SetPoint("CENTER", texture, "RIGHT")
+      sparkleL:SetPoint("CENTER", texture, "LEFT")
     end
-    
-    function obj:GetSparkleTexture()
-        return sparkleR, sparkleL
+  )
+
+  hooksecurefunc(
+    obj,
+    "SetMinMaxValues",
+    function(self, newvmin, newvmax)
+      vmin, vmax = newvmin, newvmax
     end
+  )
 
-    function obj:HideSparklesOnBounds(value)
-        value = value == true
-        hideOnBounds = value
+  hooksecurefunc(
+    obj,
+    "SetStatusBarColor",
+    function(self, r, g, b, a)
+      sparkleR:SetVertexColor(r, g, b, a)
+      sparkleL:SetVertexColor(r, g, b, a)
     end
+  )
 
-    hooksecurefunc(obj, "SetStatusBarTexture", function(self, texture)
-        sparkleR:SetPoint("CENTER", texture, "RIGHT")
-        sparkleL:SetPoint("CENTER", texture, "LEFT")
-    end)
+  hooksecurefunc(
+    obj,
+    "SetFillStyle",
+    function(self, style)
+      fillStyle = base.GetFillStyle(obj)
+    end
+  )
 
-    hooksecurefunc(obj, "SetMinMaxValues", function(self, newvmin, newvmax)
-        vmin, vmax = newvmin, newvmax
-    end)
+  obj:SetScript(
+    "OnSizeChanged",
+    function(self, w, h)
+      sparkleR:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
+      sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
+    end
+  )
 
-    hooksecurefunc(obj, "SetStatusBarColor", function(self, r, g, b, a)
-        sparkleR:SetVertexColor(r, g, b, a)
-        sparkleL:SetVertexColor(r, g, b, a)
-    end)
+  obj:SetScript(
+    "OnValueChanged",
+    function(self, val)
+      if (hideOnBounds) then
+        sparkleR:SetShown(vmin < val and vmax > val)
+        sparkleL:SetShown(false)
+      else
+        sparkleR:SetShown(true)
+        sparkleL:SetShown(false)
+      end
+    end
+  )
 
-    hooksecurefunc(obj, "SetFillStyle", function(self, style)
-        fillStyle = base.GetFillStyle(obj)
-    end)
-
-    obj:SetScript("OnSizeChanged", function(self, w, h)
-        sparkleR:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
-        sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
-    end)
-
-    obj:SetScript("OnValueChanged", function(self, val) 
-        if(hideOnBounds) then
-            sparkleR:SetShown(vmin < val and vmax > val)
-            sparkleL:SetShown(false)
-        else
-            sparkleR:SetShown(true)
-            sparkleL:SetShown(false)
-        end
-    end)
-
-    return obj
+  return obj
 end
