@@ -6,7 +6,7 @@ _G[AddonName] = LibStub("AceAddon-3.0"):NewAddon(Addon, AddonName, "AceConsole-3
 local Addon = Addon
 
 local OptionTable = {
-  name = "CastBarz Options",
+  name = AddonName .. " Options",
   type = "group",
   childGroups = "tab",
   handler = Addon,
@@ -16,7 +16,6 @@ local OptionTable = {
       type = "group",
       desc = "Enable/Disable",
       args = {
-        testMode = {name = "Enable test Mode"},
         width = {
           name = "Width",
           type = "range",
@@ -87,8 +86,8 @@ function Addon:OnInitialize()
   _G.CastingBarFrame:UnregisterAllEvents()
 
   self.db = AceDB:New(AddonName .. "DB", defaults)
-  AceConfigRegistry:RegisterOptionsTable("CastBarz", OptionTable)
-  self:RegisterChatCommand("Castbarz", "ChatCommand")
+  AceConfigRegistry:RegisterOptionsTable(AddonName, OptionTable)
+  self:RegisterChatCommand("guemui", "ChatCommand")
   self.testMode = false
 
   if LoadAddOn("GuemUI_Config") then
@@ -100,7 +99,7 @@ function Addon:OnEnable()
 end
 
 function Addon:ChatCommand(input)
-  LibStub("AceConfigCmd-3.0").HandleCommand(Addon, "Castbarz", "CastBarz", input)
+  LibStub("AceConfigCmd-3.0").HandleCommand(Addon, "guemui", AddonName, input)
 end
 
 -- Callbacks only support player castbar right now
