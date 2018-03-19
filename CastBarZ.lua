@@ -87,10 +87,11 @@ function Addon:OnInitialize()
 
   self.db = AceDB:New(AddonName .. "DB", defaults)
   AceConfigRegistry:RegisterOptionsTable(AddonName, OptionTable)
-  self:RegisterChatCommand("guemui", "ChatCommand")
+  self:RegisterChatCommand("castbarz", "ChatCommand")
+  self:RegisterChatCommand("cbz", "ChatCommand")
   self.testMode = false
 
-  if LoadAddOn("GuemUI_Config") then
+  if LoadAddOn(AddonName .. "_Config") then
   end
 end
 
@@ -99,7 +100,7 @@ function Addon:OnEnable()
 end
 
 function Addon:ChatCommand(input)
-  LibStub("AceConfigCmd-3.0").HandleCommand(Addon, "guemui", AddonName, input)
+  LibStub("AceConfigCmd-3.0").HandleCommand(Addon, "castbarz", AddonName, input)
 end
 
 -- Callbacks only support player castbar right now

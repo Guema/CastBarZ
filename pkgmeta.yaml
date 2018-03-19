@@ -1,12 +1,15 @@
-package-as: GuemUI_CastBars
+package-as: CastBarZ
 enable-nolib-creation: no
 
 externals:
-  ../GuemUI_Config:
-    url: https://github.com/Guema/GuemUIConfig.git
+  ../CastBarZ_Config:
+    url: https://github.com/Guema/CastBarZ_Config.git
     tag: latest
-  ../GuemUI_Media:
-    url: https://github.com/Guema/GuemUIMedia.git 
+  ../CastBarZ_Media:
+    url: https://github.com/Guema/CastBarZ_Media.git 
     tag: latest
 
 license-output: Licence
+
+ignore:
+  - CastBarZ.code-workspace
