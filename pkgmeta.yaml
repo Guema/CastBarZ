@@ -13,3 +13,4 @@ license-output: Licence
 
 ignore:
   - CastBarZ.code-workspace
+  - Logo.svg
