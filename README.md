@@ -1,4 +1,4 @@
-# CastBarZ
+# [CastBarZ](https://wow.curseforge.com/projects/castbarz)
 
 CastBarZ is modulable cast bar sytem addon for World of Warcraft.
 
