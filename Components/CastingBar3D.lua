@@ -135,7 +135,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
         if (unit ~= Unit) then
           return
         end
-        ccname, _, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
+        ccname, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
         currentTime = ccstime
         l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
         nametext:SetFormattedText("%s", string.sub(cctext, 1, 40))
@@ -149,10 +149,10 @@ function Addon:CreateCastingBar3D(Unit, Parent)
         if (unit ~= Unit) then
           return
         end
-        ccname, _, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
+        ccname, cctext, cctexture, ccetime, ccstime, _, cccastID = UnitChannelInfo(unit)
         currentTime = ccetime
         l:SetValue(0)
-        nametext:SetFormattedText("%s", string.sub(ccname, 1, 40))
+        nametext:SetFormattedText("%s", string.sub(cctext, 1, 40))
         f.fadein:Play()
       end
     )

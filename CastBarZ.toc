@@ -1,14 +1,14 @@
 ## Title: CastBarZ
 ## Notes: A modulable animated casting bars system
-## Interface: 70300
-## Version: 0.1
+## Interface: 80000
+## Version: 0.1_1
 ## Author: Guema-Cho'Gall
 ## SavedVariables: CastBarZDB
 
 embeds.xml
 
 CastBarZ.lua
-Components\CastingBar2D.lua
+#Components\CastingBar2D.lua
 Components\CastingBar3D.lua
 Components\ModelFrame.lua
 Components\BoundedModelFrame.lua

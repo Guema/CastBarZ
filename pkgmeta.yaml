@@ -9,8 +9,6 @@ externals:
     url: https://github.com/Guema/CastBarZ_Media.git 
     tag: latest
 
-license-output: Licence
-
 ignore:
   - CastBarZ.code-workspace
   - Logo.svg
