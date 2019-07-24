@@ -39,6 +39,6 @@ luac.out
 *.x86_64
 *.hex
 
-# Folders
-/node_modules
-/build
+#CastBarZ
+**/Libs
+.symlinks

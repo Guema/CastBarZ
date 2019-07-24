@@ -84,7 +84,7 @@ local defaults = {
 
 function Addon:OnInitialize()
     _G.CastingBarFrame:UnregisterAllEvents()
-    
+
     self.db = AceDB:New(AddonName .. "DB", defaults)
     AceConfigRegistry:RegisterOptionsTable(AddonName, OptionTable)
     self:RegisterChatCommand("castbarz", "ChatCommand")

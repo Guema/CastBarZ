@@ -1,14 +1,8 @@
 package-as: CastBarZ
 enable-nolib-creation: no
 
-externals:
-  ../CastBarZ_Config:
-    url: https://github.com/Guema/CastBarZ_Config.git
-    tag: latest
-  ../CastBarZ_Media:
-    url: https://github.com/Guema/CastBarZ_Media.git 
-    tag: latest
-
 ignore:
-  - CastBarZ.code-workspace
   - Logo.svg
+  - Licence
+  - README.md
+  - gensmlk.bat

@@ -19,8 +19,6 @@ local UIParent = UIParent
 local INTERRUPTED = INTERRUPTED
 local CHANNELING = CHANNELING
 
-local LATENCY_TOLERENCE = 100
-
 function Addon:CreateCastingBar3D(Unit, Parent)
   Parent = Parent or UIParent
   assert(type(Unit) == "string", "Usage : CreateCastingBar3D(Unit[, Parent]) : Wrong argument type for Unit argument")
@@ -51,7 +49,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
   f:SetMinMaxValues(0.0, 1.0)
 
   local m = self:CreateBoundedModel(nil, f)
-  m:SetModel("Spells\\Lightning_Area_Disc_State.M2")
+  m:SetModel(797945)
   m:SetFrameLevel(2)
   m:SetAllPoints(f:GetStatusBarTexture())
   m:GetBoundedModel():SetAllPoints(f)
@@ -137,7 +135,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
         end
         ccname, cctext, cctexture, ccstime, ccetime, _, cccastID = UnitCastingInfo(unit)
         currentTime = ccstime
-        l:SetValue(LATENCY_TOLERENCE / (ccetime - ccstime))
+        l:SetValue(GetSpellQueueWindow() / (ccetime - ccstime))
         nametext:SetFormattedText("%s", string.sub(cctext, 1, 40))
         f.fadein:Play()
       end

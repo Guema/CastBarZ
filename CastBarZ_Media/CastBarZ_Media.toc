@@ -1,0 +1,9 @@
+## Title: CastBarZ Media
+## Notes: Brings SharedMedia things.
+## Interface: 80000
+## Version: @project-version@
+## Author: Guema-Cho'Gall
+
+embeds.xml
+
+Core.lua
