@@ -6,3 +6,8 @@ ignore:
   - Licence
   - README.md
   - gensmlk.bat
+
+move-folders:
+  CastBarZ/CastBarZ_Config: CastBarZ_Config
+  CastBarZ/CastBarZ_Media: CastBarZ_Media
+  CastBarZ/CastBarZ: CastBarZ
