@@ -1,6 +1,6 @@
 ## Title: CastBarZ
 ## Notes: A modulable animated casting bars system
-## Interface: 80000
+## Interface: 80200
 ## Version: @project-version@
 ## Author: Guema-Cho'Gall
 ## SavedVariables: CastBarZDB
