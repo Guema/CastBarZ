@@ -5,11 +5,13 @@ CastBarZ is modulable cast bar sytem addon for World of Warcraft.
 It is designed to be modulable, configurable, beautiful, and to have as better as possible performances. One of its strong points is the ability to display a cool 3D effect inside cast bar thanks to frame clipping added in Legion
 
 Plans for future patches :
-- Color picker for cast bar
-- Font picker for text
+- Color picker for cast bar and texts
+- Font picker for texts
 - A number of options letting user what text to display and how.
 - Draggable config system
-- Spell icon maaybe ?
+- 3D effect picker
+- Support all bars (breath/exaust/vehicle)
+- Spell icon ?
 
 ## Contact
 
