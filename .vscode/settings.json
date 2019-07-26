@@ -1,2 +1,12 @@
 {
+    "Lua.diagnostics.disable": [
+        // "undefined-global",
+    ],
+    "Lua.diagnostics.severity": {
+        "undefined-global": "Hint"
+    },
+    "Lua.workspace.ignoreDir": [
+        "**/Libs"
+    ],
+    "Lua.runtime.version": "Lua 5.1",
 }

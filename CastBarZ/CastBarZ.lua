@@ -117,13 +117,13 @@ end
 
 function Addon:SetXOffset(info, value)
     self.db.profile.player.xoffset = value
-    point, relativeTo, relativePoint, _, yOfs = self.player:GetPoint()
+    local point, relativeTo, relativePoint, _, yOfs = self.player:GetPoint()
     self.player:SetPoint(point, relativeTo, relativePoint, value, yOfs)
 end
 
 function Addon:SetYOffset(info, value)
     self.db.profile.player.yoffset = value
-    point, relativeTo, relativePoint, xOfs = self.player:GetPoint()
+    local point, relativeTo, relativePoint, xOfs = self.player:GetPoint()
     self.player:SetPoint(point, relativeTo, relativePoint, xOfs, value)
 end
 
