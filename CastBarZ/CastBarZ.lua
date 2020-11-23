@@ -94,6 +94,7 @@ end
 
 function Addon:OnEnable()
     self.player = self:CreateCastingBar3D("player")
+    LoadAddOn(AddonName .. "_Config")
 end
 
 function Addon:ChatCommand(input)
