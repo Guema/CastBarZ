@@ -1,6 +1,6 @@
 ## Title: CastBarZ Config
 ## Notes: An on demand config module for CastBarZ addon.
-## Interface: 80200
+## Interface: 90002
 ## Version: @project-version@
 ## Author: Guema-Cho'Gall
 ## LoadOnDemand: 1

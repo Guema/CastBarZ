@@ -6,17 +6,22 @@ function Addon:CreateModel(Name, Parent, ...)
   local obj = CreateFrame("PlayerModel", Name, Parent, ...)
   local base = getmetatable(obj).__index
   local mdl
+  local transform = {}
 
-  function obj:SetModel(path)
-    mdl = path
+  function obj:SetModel(id)
+    mdl = id
+  end
+
+  function obj:SetTransform(a, b, c, d, e, f, g)
+    transform = {a, b, c, d, e, f, g}
+    self:SetPosition(transform[1], transform[2], transform[3])
   end
 
   obj:SetScript(
     "OnModelLoaded",
     function(self)
-      self:SetPortraitZoom(1)
       self:ClearTransform()
-      self:SetTransform(1, 0, 0.050, 0, 0, 0, 0.200)
+      self:SetPosition(transform[1], transform[2], transform[3])
     end
   )
 

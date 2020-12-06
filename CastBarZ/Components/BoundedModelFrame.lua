@@ -10,6 +10,8 @@ function Addon:CreateBoundedModel(Name, Parent, ...)
   local base = getmetatable(obj).__index
   local mdl = self:CreateModel(nil, obj)
 
+  obj:SetClipsChildren(true)
+  
   function obj:SetModel(path)
     mdl:SetModel(path)
   end
@@ -17,16 +19,6 @@ function Addon:CreateBoundedModel(Name, Parent, ...)
   function obj:GetBoundedModel()
     return mdl
   end
-
-  mdl:SetScript(
-    "OnModelLoaded",
-    function(self)
-      self:SetPortraitZoom(1)
-      self:ClearTransform()
-      self:SetPosition(3, 0, -1)
-      obj:SetClipsChildren(true)
-    end
-  )
 
   obj:SetScript(
     "OnSizeChanged",

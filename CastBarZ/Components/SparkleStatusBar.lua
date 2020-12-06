@@ -13,22 +13,23 @@ local HEIGHT_FACTOR = 1.8
 function Addon.CreateSparkleStatusBar(Name, Parent, ...)
   local obj = AceEvent:Embed(CreateFrame("StatusBar", Name, Parent, ...))
   local base = getmetatable(obj).__index
+  local texture
 
   local vmin, vmax = base.GetMinMaxValues(obj)
-  local sparkleR, sparkleL = obj:CreateTexture(), obj:CreateTexture()
+  local sparkle = obj:CreateTexture("sparkle", 5)
   local fillStyle = base.GetFillStyle(obj)
   local hideOnBounds = true
+  local size = {}
 
-  sparkleR:SetBlendMode("ADD")
-  sparkleL:SetBlendMode("ADD")
+  sparkle:SetShown(true)
+  sparkle:SetBlendMode("ADD")
 
   function obj:SetSparkleTexture(texture)
-    sparkleR:SetTexture(texture)
-    sparkleL:SetTexture(texture)
+    sparkle:SetTexture(texture)
   end
 
   function obj:GetSparkleTexture()
-    return sparkleR, sparkleL
+    return sparkle
   end
 
   function obj:HideSparklesOnBounds(value)
@@ -36,12 +37,17 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
     hideOnBounds = value
   end
 
+  function obj:SetSparkleColor(r, g, b, a)
+    sparkle:SetVertexColor(r, g, b, a)
+  end
+
   hooksecurefunc(
     obj,
     "SetStatusBarTexture",
-    function(self, texture)
-      sparkleR:SetPoint("CENTER", texture, "RIGHT")
-      sparkleL:SetPoint("CENTER", texture, "LEFT")
+    function(self, newTexture)
+      sparkle:ClearAllPoints()
+      sparkle:SetPoint("CENTER", newTexture, "RIGHT")
+      texture = newTexture
     end
   )
 
@@ -55,26 +61,22 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
 
   hooksecurefunc(
     obj,
-    "SetStatusBarColor",
-    function(self, r, g, b, a)
-      sparkleR:SetVertexColor(r, g, b, a)
-      sparkleL:SetVertexColor(r, g, b, a)
-    end
-  )
-
-  hooksecurefunc(
-    obj,
     "SetFillStyle",
     function(self, style)
       fillStyle = base.GetFillStyle(obj)
     end
   )
 
-  obj:SetScript(
+  local function adjustSize()
+  end
+
+  obj:HookScript(
     "OnSizeChanged",
     function(self, w, h)
-      sparkleR:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
-      sparkleL:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
+      -- sparkle:SetSize(h * WIDTH_FACTOR, h * HEIGHT_FACTOR)
+      sparkle:ClearAllPoints()
+      sparkle:SetPoint("TOPLEFT", texture, "RIGHT", -(h * WIDTH_FACTOR) / 2, (h * HEIGHT_FACTOR) / 2)
+      sparkle:SetPoint("BOTTOMRIGHT", texture, "RIGHT", (h * WIDTH_FACTOR) / 2, -(h * HEIGHT_FACTOR) / 2)
     end
   )
 
@@ -82,11 +84,9 @@ function Addon.CreateSparkleStatusBar(Name, Parent, ...)
     "OnValueChanged",
     function(self, val)
       if (hideOnBounds) then
-        sparkleR:SetShown(vmin < val and vmax > val)
-        sparkleL:SetShown(false)
+        sparkle:SetShown(vmin < val and vmax > val)
       else
-        sparkleR:SetShown(true)
-        sparkleL:SetShown(false)
+        sparkle:SetShown(true)
       end
     end
   )

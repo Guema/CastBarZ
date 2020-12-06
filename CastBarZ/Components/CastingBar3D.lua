@@ -6,6 +6,7 @@ assert(Addon ~= nil, AddonName .. " could not be load")
 
 local assert = assert
 local type = type
+local unpack = unpack
 local getmetatable = getmetatable
 local CreateFrame = CreateFrame
 local GetSpellInfo = GetSpellInfo
@@ -27,32 +28,57 @@ function Addon:CreateCastingBar3D(Unit, Parent)
   local f = self.CreateSparkleStatusBar(AddonName .. Unit, Parent)
   local l = CreateFrame("StatusBar", nil, f)
   local textoverlay = CreateFrame("Frame", nil, f)
+  
+  local setup = Addon.modelSetups[2]
+  local gradient = setup.barGradient
+  local modelId = setup.modelId
+  local transform = setup.modelTransform
+  local sparkColor = setup.sparkColor
 
-  f:Hide()
-  f:SetSize(config.width, config.height)
+  f:ClearAllPoints()
   f:SetPoint("CENTER", Parent, "BOTTOM", config.xoffset, config.yoffset)
+  f:Show()
 
-  local t = f:CreateTexture(nil, "BACKGROUND")
-  t:SetColorTexture(0, 0, 0, 0.4)
-  t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)
-  t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 2, -2)
-  local t = f:CreateTexture(nil, "BACKGROUND")
-  t:SetColorTexture(0, 0, 0)
-  t:SetAllPoints(f)
-  local t = f:CreateTexture("StatusBarTexture")
-  t:SetTexture(LSM:Fetch("statusbar", "Solid"))
-  f:SetStatusBarTexture(t)
-  f:SetSparkleTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
-  f:SetStatusBarColor(0.3, 0.72, 1)
-  t:SetGradientAlpha("HORIZONTAL", 0, 0.47, 0.8, 1, 0.4, 0.8, 1, 1.0)
-  f:SetFillStyle("STANDARD")
-  f:SetMinMaxValues(0.0, 1.0)
+  do 
+    local t = f:CreateTexture(nil, "BACKGROUND")
+    t:SetColorTexture(0, 0, 0, 0.4)
+    t:SetPoint("TOPLEFT", f, "TOPLEFT", -2, 2)
+    t:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", 2, -2)
+  end
+
+  do
+    local t = f:CreateTexture(nil, "BACKGROUND")
+    t:SetColorTexture(0, 0, 0)
+    t:SetAllPoints(f)
+  end
+
+  f:SetWidth(config.width)
+  f:SetHeight(config.height)  
+  
+  do
+    local t = f:CreateTexture("StatusBarTexture")
+    t:SetTexture(LSM:Fetch("statusbar", "Solid"))
+    t:ClearAllPoints()
+    f:SetStatusBarTexture(t)
+    f:SetSparkleTexture(130877)
+    f:SetSparkleColor(unpack(sparkColor))
+    f:SetStatusBarColor(1, 1, 1, 1)
+    t:SetGradientAlpha("HORIZONTAL", unpack(gradient))
+    f:SetFillStyle("STANDARD")
+    f:SetMinMaxValues(0.0, 1.0)
+  end
+
+  -- Temporary (expectingly) because of a problem affecting attached textures, like sparkle in this case
+  f:Hide()
+  --
 
   local m = self:CreateBoundedModel(nil, f)
-  m:SetModel(797945)
+  m:SetModel(modelId)
   m:SetFrameLevel(2)
   m:SetAllPoints(f:GetStatusBarTexture())
   m:GetBoundedModel():SetAllPoints(f)
+  m:GetBoundedModel():SetTransform(unpack(transform))
+  m:GetBoundedModel():SetAlpha(setup.modelColor[4])
 
   textoverlay:SetAllPoints(f)
   textoverlay:SetFrameLevel(3)
@@ -73,7 +99,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
   l:SetHeight(24)
 
   l:SetStatusBarTexture(LSM:Fetch("statusbar", "Solid"))
-  l:GetStatusBarTexture():SetGradientAlpha("HORIZONTAL", 1.0, 0.878, 0.298, 1, 1.0, 0.827, 0, 1.0)
+  l:GetStatusBarTexture():SetGradientAlpha("HORIZONTAL", 1.0, 0.878, 0.298, 0.0, 1.0, 0.827, 0, 1)
   l:SetAlpha(0.5)
   l:SetFillStyle("REVERSE")
   l:SetMinMaxValues(0.0, 1.0)
@@ -106,7 +132,7 @@ function Addon:CreateCastingBar3D(Unit, Parent)
     function(self, ...)
       currently_casting = true
       f.fadeout:Stop()
-      f:SetShown(true)
+      f:Show(true)
     end
   )
 

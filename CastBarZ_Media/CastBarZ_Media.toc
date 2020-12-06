@@ -1,6 +1,6 @@
 ## Title: CastBarZ Media
 ## Notes: Brings SharedMedia things.
-## Interface: 80200
+## Interface: 90002
 ## Version: @project-version@
 ## Author: Guema-Cho'Gall
 
